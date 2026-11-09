@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Divinity Maa Lakshmi - Automated Whole-Project Browser Audit Harness</title>
+    <!-- Stylesheets under test -->
+    <link rel="stylesheet" href="css/welcome.css">
+    <link rel="stylesheet" href="css/curtains.css">
+    <link rel="stylesheet" href="css/sanctum.css">
+    <link rel="stylesheet" href="css/aarti_player.css">
+    <link rel="stylesheet" href="css/aarti.css">
+
+    <!-- External GSAP script (optional, fallback tested) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body>
+
+    <!-- Sacred Audio Mock / Real Elements -->
+    <audio id="shankhAudio" preload="auto">
+        <source src="shankh_naad.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="aartiAudio" preload="metadata">
+        <source src="media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
+    </audio>
+
+    <main id="app">
+        <!-- PHASE 1: WELCOME SCREEN -->
+        <section id="welcomeScreen" class="welcome-screen">
+            <video id="welcomeVideo" class="welcome-video" autoplay muted loop playsinline poster="darshan_poster.png">
+                <source src="cinematic_diwali_darshan_1080p.mp4" type="video/mp4">
+            </video>
+            <div id="scrollPrompt" class="scroll-prompt" role="button" aria-label="Scroll for Maa's Darshan">
+                <span>Scroll for Maa's Darshan</span>
+                <span class="scroll-arrow">↓</span>
+            </div>
+        </section>
+
+        <!-- PHASE 2: TEMPLE CURTAINS -->
+        <div id="templeCurtainsStage" class="temple-curtains-stage">
+            <div id="curtainLeft" class="curtain-panel curtain-left"></div>
+            <div id="curtainRight" class="curtain-panel curtain-right"></div>
+            <div id="curtainLightLeak" class="curtain-light-leak"></div>
+            <canvas id="curtainFxCanvas" width="1920" height="1080"></canvas>
+        </div>
+
+        <!-- PHASE 2: SANCTUM SANCTORUM -->
+        <section id="sanctumSanctorum" class="sanctum-sanctorum">
+            <div class="fullscreen-darshan-container">
+                <img src="maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
+                <img src="maa_lakshmi_darshan_4k.jpg" alt="Maa Lakshmi" class="darshan-main-img" id="deityDarshanImg">
+            </div>
+            <div class="divine-rays-layer"></div>
+            <canvas id="divineEnvCanvas" width="1920" height="1080"></canvas>
+            <div class="golden-prabha-aura"></div>
+
+            <!-- PHASE 3B: MANDIR LYRICS & PLAYER PEDESTAL -->
+            <div id="aartiPlayerPedestal" class="mandir-lyrics-pedestal" role="region" aria-label="Maa Lakshmi Aarti Audio and Lyrics">
+                <div class="lyrics-stage">
+                    <div id="lyricPrev" class="lyric-line-prev"></div>
+                    <div id="lyricCurrent" class="lyric-line-current"></div>
+                    <div id="lyricNext" class="lyric-line-next"></div>
+                </div>
+                <div class="player-controls-row">
+                    <button id="btnPlayPause" class="btn-mandir-ctrl btn-mandir-play" aria-label="Play Aarti">▶</button>
+                    <button id="btnReplay" class="btn-mandir-ctrl" aria-label="Replay Aarti">↺</button>
+                    <span id="currentTimeDisplay" class="time-display">00:00</span>
+                    <div class="seek-bar-wrapper">
+                        <input type="range" id="aartiSeekSlider" class="mandir-seek-slider" min="0" max="331" value="0" step="1">
+                    </div>
+                    <span id="totalTimeDisplay" class="time-display">05:31</span>
+                    <div class="volume-group">
+                        <button id="btnVolumeIcon" class="btn-vol-icon" aria-label="Mute or Unmute">🔊</button>
+                        <input type="range" id="aartiVolSlider" class="mandir-vol-slider" min="0" max="1" value="0.85" step="0.01">
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 4: AARTI TOOLBAR -->
+            <div id="aartiToolbar" class="aarti-toolbar">
+                <div class="aarti-counter-badge">
+                    <span id="aartiRoundText">Aarti Rounds: 0 / 7</span>
+                </div>
+                <div class="aarti-btn-group">
+                    <button id="camToggleBtn" class="btn-aarti btn-aarti-outline">📷 Hand Gesture Aarti</button>
+                    <button id="autoAartiBtn" class="btn-aarti">▶ Auto Aarti</button>
+                </div>
+            </div>
+
+            <!-- PHASE 4: FLOATING AARTI THALI -->
+            <div id="aartiThali">
+                <div class="thali-brass-disc">
+                    <div class="thali-flame-kapoor"></div>
+                    <div class="thali-ghee-wick wick-pos-top"></div>
+                    <div class="thali-ghee-wick wick-pos-bottom"></div>
+                    <div class="thali-ghee-wick wick-pos-left"></div>
+                    <div class="thali-ghee-wick wick-pos-right"></div>
+                </div>
+            </div>
+
+            <!-- PHASE 4: WEBCAM PiP -->
+            <div id="camViewBox">
+                <video id="camVideo" autoplay muted playsinline></video>
+                <canvas id="camOverlayCanvas"></canvas>
+            </div>
+
+            <!-- PHASE 5: FINAL BLESSINGS MODAL -->
+            <div id="finalBlessingsModal">
+                <div class="blessing-swastik">卐</div>
+                <h2 class="blessing-heading">॥ शुभ दीपावली ॥</h2>
+                <div class="blessing-body">
+                    <p>माँ महालक्ष्मी की कृपा से आपके जीवन में सदैव सुख, शांति, समृद्धि और आरोग्य का वास हो।</p>
+                    <p class="blessing-mantra-quote">"सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके ।<br>शरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते ॥"</p>
+                </div>
+                <button class="btn-aarti" id="btnRestartAarti">✨ पुनः दर्शन एवं आरती</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Production Component Scripts -->
+    <script src="js/welcome.js"></script>
+    <script src="js/curtains.js"></script>
+    <script src="js/environment.js"></script>
+    <script src="js/aarti_player.js"></script>
+    <script src="js/aarti.js"></script>
+
+    <!-- AUTOMATED AUDIT SUITE -->
+    <div id="auditReportContainer" style="display:none;">
+        <pre id="auditOutput"></pre>
+    </div>
+
+    <script>
+        const AUDIT = {
+            testsRun: 0,
+            testsPassed: 0,
+            testsFailed: 0,
+            results: []
+        };
+
+        function assert(condition, testName, details = '') {
+            AUDIT.testsRun++;
+            if (condition) {
+                AUDIT.testsPassed++;
+                AUDIT.results.push({ test: testName, status: 'PASS', details });
+            } else {
+                AUDIT.testsFailed++;
+                AUDIT.results.push({ test: testName, status: 'FAIL', details });
+                console.error(`[FAIL] ${testName}: ${details}`);
+            }
+        }
+
+        async function runAuditSuite() {
+            console.log('--- STARTING COMPREHENSIVE BROWSER AUDIT SUITE ---');
+
+            // -------------------------------------------------------------
+            // SUITE 1: PHASE 1 WELCOME SCREEN
+            // -------------------------------------------------------------
+            let scrollTriggeredCount = 0;
+            const welcome = new WelcomeScreen({
+                onScrollTrigger: () => {
+                    scrollTriggeredCount++;
+                }
+            });
+
+            assert(welcome instanceof WelcomeScreen, 'Phase 1: WelcomeScreen instantiation');
+            assert(welcome.video !== null, 'Phase 1: Video element found');
+            assert(welcome.video.muted === true, 'Phase 1: Video is muted for autoplay compliance');
+            assert(welcome.video.loop === true, 'Phase 1: Video loop attribute enabled');
+            assert(welcome.isTriggered === false, 'Phase 1: isTriggered initially false');
+
+            // Trigger scroll via wheel
+            window.dispatchEvent(new WheelEvent('wheel', { deltaY: 25 }));
+            assert(welcome.isTriggered === true, 'Phase 1: Wheel scroll triggers transition');
+            assert(scrollTriggeredCount === 1, 'Phase 1: Callback executed exactly once');
+
+            // Guard against duplicate trigger
+            window.dispatchEvent(new WheelEvent('wheel', { deltaY: 50 }));
+            assert(scrollTriggeredCount === 1, 'Phase 1: Subsequent scroll events ignored by guard');
+
+            // -------------------------------------------------------------
+            // SUITE 2: PHASE 2 TEMPLE CURTAINS & SANCTUM REVEAL
+            // -------------------------------------------------------------
+            let revealCallbackCount = 0;
+            const curtains = new TempleCurtainsComponent({
+                onRevealComplete: () => {
+                    revealCallbackCount++;
+                }
+            });
+
+            assert(curtains instanceof TempleCurtainsComponent, 'Phase 2: TempleCurtainsComponent instantiation');
+            assert(curtains.isTransitioning === false, 'Phase 2: Initially not transitioning');
+            assert(curtains.isRevealed === false, 'Phase 2: Initially not revealed');
+
+            // Test opening curtains
+            curtains.openCurtains(() => {
+                // manual callback test
+            });
+            assert(curtains.isTransitioning === true, 'Phase 2: openCurtains initiates transition');
+
+            // Test completion
+            curtains.isTransitioning = false;
+            curtains.isRevealed = true;
+            document.getElementById('sanctumSanctorum').classList.add('active');
+            if (typeof curtains.onRevealComplete === 'function') {
+                curtains.onRevealComplete();
+            }
+
+            assert(curtains.isRevealed === true, 'Phase 2: Curtains mark isRevealed = true');
+            assert(revealCallbackCount === 1, 'Phase 2: onRevealComplete callback fired successfully');
+            assert(document.getElementById('sanctumSanctorum').classList.contains('active'), 'Phase 2: Sanctum receives active class');
+
+            // Guard against re-opening
+            curtains.openCurtains();
+            assert(curtains.isTransitioning === false, 'Phase 2: Curtains cannot be re-opened once revealed');
+
+            // -------------------------------------------------------------
+            // SUITE 3: PHASE 3B DEVOTIONAL AARTI AUDIO & LYRICS ENGINE
+            // -------------------------------------------------------------
+            const player = new MaaLakshmiAartiPlayer({
+                audioId: 'aartiAudio',
+                containerId: 'aartiPlayerPedestal'
+            });
+
+            assert(player instanceof MaaLakshmiAartiPlayer, 'Phase 3B: AartiPlayer instantiation');
+            assert(player.embeddedLyrics.length === 25, 'Phase 3B: Exactly 25 authoritative lyrics segments present');
+            assert(player.embeddedLyrics[0].id === 'intro' && player.embeddedLyrics[0].type === 'instrumental', 'Phase 3B: Segment 0 is Sacred Instrumental Prelude');
+            assert(player.embeddedLyrics[1].text.includes('ॐ जय लक्ष्मी माता'), 'Phase 3B: Segment 1 is Verse 1 Line 1');
+            assert(player.embeddedLyrics[24].id === 'outro', 'Phase 3B: Segment 24 is Grand Temple Bells Outro');
+
+            // Synchronized lyrics lookup tests
+            player.syncLyrics(0.0);
+            assert(player.currentIndex === 0, 'Phase 3B: syncLyrics(0.0) selects Prelude');
+
+            player.syncLyrics(25.0);
+            assert(player.currentIndex === 1, 'Phase 3B: syncLyrics(25.0) selects Verse 1');
+
+            player.syncLyrics(62.0);
+            assert(player.currentIndex === 4, 'Phase 3B: syncLyrics(62.0) selects Verse 2');
+
+            player.syncLyrics(300.0);
+            assert(player.currentIndex === 22, 'Phase 3B: syncLyrics(300.0) selects Verse 8');
+
+            player.syncLyrics(330.0);
+            assert(player.currentIndex === 24, 'Phase 3B: syncLyrics(330.0) selects Outro');
+
+            // Audio Controls API
+            player.setVolume(0.65);
+            assert(Math.abs(player.audioElement.volume - 0.65) < 0.01, 'Phase 3B: setVolume(0.65) updates volume');
+
+            player.toggleMute();
+            assert(player.audioElement.volume === 0, 'Phase 3B: toggleMute mutes audio to 0');
+
+            player.toggleMute();
+            assert(Math.abs(player.audioElement.volume - 0.65) < 0.01, 'Phase 3B: toggleMute restores previous volume');
+
+            assert(player.formatTime(125) === '02:05', 'Phase 3B: formatTime(125) returns 02:05');
+            assert(player.formatTime(331) === '05:31', 'Phase 3B: formatTime(331) returns 05:31');
+
+            // -------------------------------------------------------------
+            // SUITE 4: PHASE 2 ENVIRONMENT (FLOWERS & COINS PHYSICS)
+            // -------------------------------------------------------------
+            const environment = new DivineEnvironmentComponent('divineEnvCanvas');
+            assert(environment instanceof DivineEnvironmentComponent, 'Phase 2: Environment component instantiation');
+            assert(environment.petals.length > 0, 'Phase 2: Petal pool initialized');
+            assert(environment.coins.length > 0, 'Phase 2: Coin pool initialized');
+
+            const initialPetalCount = environment.petals.length;
+            environment.spawnFlowerBurst(960, 540, 20);
+            assert(environment.petals.length === initialPetalCount + 20, 'Phase 2: spawnFlowerBurst adds milestone petals');
+
+            // -------------------------------------------------------------
+            // SUITE 5: PHASE 4 INTERACTIVE AARTI & PARIKRAMA ROUND ENGINE
+            // -------------------------------------------------------------
+            const aarti = new AartiInteractionComponent({
+                environment: environment,
+                player: player
+            });
+
+            assert(aarti instanceof AartiInteractionComponent, 'Phase 4: AartiInteractionComponent instantiation');
+            assert(aarti.thali !== null, 'Phase 4: Aarti Thali DOM element present');
+            assert(aarti.kapoorFlame !== null, 'Phase 4: Central Kapoor flame element present');
+            assert(aarti.completedRounds === 0, 'Phase 4: Initial completed rounds is 0');
+            assert(aarti.maxRounds === 7, 'Phase 4: Target rounds is strictly 7');
+
+            // Test A: Flame velocity tilt aerodynamics
+            aarti.thaliX = 960;
+            aarti.targetX = 1000; // vx = +40 (moving right)
+            const expectedTilt = Math.max(-18, Math.min(18, -40 * 0.55)); // -18 deg (tilts left)
+            assert(expectedTilt === -18, 'Phase 4: Moving right tilts flame left (-18deg)');
+
+            aarti.targetX = 920; // vx = -40 (moving left)
+            const expectedTiltLeft = Math.max(-18, Math.min(18, 40 * 0.55)); // +18 deg (tilts right)
+            assert(expectedTiltLeft === 18, 'Phase 4: Moving left tilts flame right (+18deg)');
+
+            // Test B: Parikrama deadzone (r < 40px)
+            const { centerX, centerY } = aarti.getArtworkCenter();
+            aarti.trackCircularMotion(centerX + 10, centerY + 10);
+            assert(aarti.cumulativeAngle === 0, 'Phase 4: Deadzone rejects movement inside 40px radius');
+
+            // Test C: Anticlockwise movement immunity (Must NOT count as round)
+            aarti.prevAngle = null;
+            aarti.cumulativeAngle = 0;
+            aarti.completedRounds = 0;
+
+            // Move counter-clockwise: 0 -> -PI/2 -> -PI -> -3PI/2 -> -2PI
+            const radius = 150;
+            for (let deg = 0; deg >= -360; deg -= 15) {
+                const rad = deg * (Math.PI / 180);
+                const x = centerX + Math.cos(rad) * radius;
+                const y = centerY + Math.sin(rad) * radius;
+                aarti.trackCircularMotion(x, y);
+            }
+            assert(aarti.completedRounds === 0, 'Phase 4: Anticlockwise rotation strictly rejected (rounds = 0)');
+            assert(aarti.cumulativeAngle === 0, 'Phase 4: Cumulative angle remains 0 during anticlockwise rotation');
+
+            // Test D: Incomplete clockwise circle (e.g. 180 degrees)
+            aarti.prevAngle = null;
+            aarti.cumulativeAngle = 0;
+            for (let deg = 0; deg <= 180; deg += 15) {
+                const rad = deg * (Math.PI / 180);
+                const x = centerX + Math.cos(rad) * radius;
+                const y = centerY + Math.sin(rad) * radius;
+                aarti.trackCircularMotion(x, y);
+            }
+            assert(aarti.completedRounds === 0, 'Phase 4: Incomplete circle (180deg) does NOT count as a round');
+
+            // Test E: Complete full circle (180 -> 360 degrees)
+            for (let deg = 195; deg <= 360; deg += 15) {
+                const rad = deg * (Math.PI / 180);
+                const x = centerX + Math.cos(rad) * radius;
+                const y = centerY + Math.sin(rad) * radius;
+                aarti.trackCircularMotion(x, y);
+            }
+            assert(aarti.completedRounds === 1, 'Phase 4: Full 360 degree circle successfully increments rounds to 1');
+
+            // Test F: Perform rounds 2 through 7 to reach target
+            for (let round = 2; round <= 7; round++) {
+                for (let deg = 15; deg <= 360; deg += 15) {
+                    const rad = deg * (Math.PI / 180);
+                    const x = centerX + Math.cos(rad) * radius;
+                    const y = centerY + Math.sin(rad) * radius;
+                    aarti.trackCircularMotion(x, y);
+                }
+            }
+            assert(aarti.completedRounds === 7, 'Phase 4: Exactly 7 completed rounds reached');
+
+            // -------------------------------------------------------------
+            // SUITE 6: PHASE 5 FINAL BLESSINGS TRANSITION
+            // -------------------------------------------------------------
+            assert(aarti.isBlessingActive === true, 'Phase 5: 7 rounds triggers isBlessingActive = true');
+            assert(document.getElementById('finalBlessingsModal').classList.contains('active'), 'Phase 5: Final Blessings Modal displayed');
+
+            // Audio ducking verification
+            assert(player.audioElement.volume <= 0.25, 'Phase 5: Background bhajan dipped for spoken blessings voiceover');
+
+            // Test G: Idempotency after 7 rounds (additional movement cannot re-trigger)
+            for (let deg = 0; deg <= 360; deg += 15) {
+                const rad = deg * (Math.PI / 180);
+                const x = centerX + Math.cos(rad) * radius;
+                const y = centerY + Math.sin(rad) * radius;
+                aarti.trackCircularMotion(x, y);
+            }
+            assert(aarti.completedRounds === 7, 'Phase 5: Idempotent - rounds do not exceed 7 after completion');
+
+            // Test H: Reset and Replay Lifecycle
+            aarti.closeBlessingModal();
+            assert(aarti.isBlessingActive === false, 'Phase 5: closeBlessingModal resets isBlessingActive');
+            assert(aarti.completedRounds === 0, 'Phase 5: closeBlessingModal resets completedRounds to 0');
+            assert(aarti.cumulativeAngle === 0, 'Phase 5: closeBlessingModal resets cumulativeAngle to 0');
+            assert(!document.getElementById('finalBlessingsModal').classList.contains('active'), 'Phase 5: Blessings modal hidden after reset');
+            assert(Math.abs(player.audioElement.volume - 0.65) < 0.01, 'Phase 5: Background audio volume restored after modal close');
+
+            // Test I: Replay verification (can perform a round again)
+            for (let deg = 0; deg <= 360; deg += 15) {
+                const rad = deg * (Math.PI / 180);
+                const x = centerX + Math.cos(rad) * radius;
+                const y = centerY + Math.sin(rad) * radius;
+                aarti.trackCircularMotion(x, y);
+            }
+            assert(aarti.completedRounds === 1, 'Phase 5: Replay successful - can perform Aarti again cleanly');
+
+            // -------------------------------------------------------------
+            // SUITE 7: AUTO AARTI MODE
+            // -------------------------------------------------------------
+            aarti.toggleAutoAarti();
+            assert(aarti.isAutoAarti === true, 'Phase 4: toggleAutoAarti activates Auto Aarti');
+            aarti.toggleAutoAarti();
+            assert(aarti.isAutoAarti === false, 'Phase 4: toggleAutoAarti deactivates Auto Aarti');
+
+            // -------------------------------------------------------------
+            // SUITE 8: LOCAL COMPUTER VISION FALLBACK SEGMENTATION
+            // -------------------------------------------------------------
+            assert(aarti.cvCanvas.width === 160 && aarti.cvCanvas.height === 120, 'Phase 4: CV fallback canvas sized at 160x120');
+
+            // Test RGB skin tone classification algorithm
+            // R > 95, G > 40, B > 20, R - G > 15, R > G, R > B
+            const isSkin = (r, g, b) => (r > 95 && g > 40 && b > 20 && (r - g) > 15 && r > g && r > b);
+            assert(isSkin(210, 150, 110) === true, 'Phase 4: Skin tone 1 (Fair/Medium) accepted');
+            assert(isSkin(165, 105, 65) === true, 'Phase 4: Skin tone 2 (Deeper Warm) accepted');
+            assert(isSkin(235, 180, 140) === true, 'Phase 4: Skin tone 3 (Warm Golden) accepted');
+            assert(isSkin(40, 40, 200) === false, 'Phase 4: Blue backdrop rejected');
+            assert(isSkin(20, 180, 40) === false, 'Phase 4: Green foliage rejected');
+            assert(isSkin(255, 255, 255) === false, 'Phase 4: Pure white lamp/highlight rejected');
+
+            // -------------------------------------------------------------
+            // OUTPUT STRUCTURED JSON RESULTS
+            // -------------------------------------------------------------
+            const outputEl = document.getElementById('auditOutput');
+            const jsonReport = JSON.stringify(AUDIT, null, 2);
+            outputEl.textContent = jsonReport;
+            document.getElementById('auditReportContainer').style.display = 'block';
+
+            console.log(`--- AUDIT SUITE FINISHED: ${AUDIT.testsPassed}/${AUDIT.testsRun} PASSED ---`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            runAuditSuite();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* ==========================================================================
+   PHASE 1: WELCOME SCREEN (FULL VIEWPORT MP4 & CORNER SCROLL PROMPT)
+   ========================================================================== */
+
+:root {
+    --gold-bright: #FFF275;
+    --gold-warm: #FFD700;
+    --gold-subtle: #FFE082;
+    --gold-dark: #C59B27;
+    --bg-dark: #080301;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: 'Cinzel', 'Georgia', 'Noto Serif Devanagari', serif;
+    color: #FFF5E1;
+}
+
+/* Master App Viewport Container */
+#app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Phase 1: Fullscreen Welcome Screen */
+.welcome-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-dark);
+    /* Transition preparation for Phase 2 scroll trigger */
+    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1), opacity 1s ease;
+}
+
+/* Full Viewport Responsive Video */
+.welcome-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    pointer-events: none;
+    /* Soft ambient vignette integration */
+    filter: brightness(1.02) contrast(1.04);
+}
+
+/* Subtle, Elegant Fixed Message in Corner */
+.scroll-prompt {
+    position: fixed;
+    bottom: 32px;
+    right: 36px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    pointer-events: auto;
+    
+    /* Warm golden typography */
+    color: var(--gold-subtle);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 1.8px;
+    text-transform: none;
+
+    /* Very subtle glow */
+    text-shadow: 
+        0 0 10px rgba(255, 215, 0, 0.45),
+        0 0 20px rgba(255, 160, 0, 0.25);
+    
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(18, 7, 2, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 215, 0, 0.22);
+
+    /* Subtle floating breathing motion */
+    animation: gentle-prompt-pulse 3s infinite ease-in-out;
+    transition: all 0.35s ease;
+}
+
+.scroll-prompt:hover {
+    color: #FFF;
+    border-color: rgba(255, 215, 0, 0.55);
+    background: rgba(28, 10, 3, 0.6);
+    text-shadow: 
+        0 0 14px rgba(255, 215, 0, 0.75),
+        0 0 25px rgba(255, 180, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.scroll-arrow {
+    display: inline-block;
+    color: var(--gold-warm);
+    font-size: 1.15rem;
+    line-height: 1;
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.scroll-prompt:hover .scroll-arrow {
+    transform: translateY(3px);
+}
+
+@keyframes gentle-prompt-pulse {
+    0%, 100% {
+        opacity: 0.88;
+        transform: translateY(0);
+        box-shadow: 0 0 12px rgba(255, 140, 0, 0.15);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(255, 180, 0, 0.28);
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .scroll-prompt {
+        bottom: 24px;
+        right: 50%;
+        transform: translateX(50%);
+        font-size: 0.95rem;
+        letter-spacing: 1.2px;
+        white-space: nowrap;
+        padding: 7px 15px;
+    }
+
+    @keyframes gentle-prompt-pulse {
+        0%, 100% {
+            opacity: 0.88;
+            transform: translateX(50%) translateY(0);
+        }
+        50% {
+            opacity: 1;
+            transform: translateX(50%) translateY(-3px);
+        }
+    }
+}
+

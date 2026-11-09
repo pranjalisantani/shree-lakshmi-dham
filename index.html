@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shree Maha Lakshmi Virtual Aarti Room</title>
+    
+    <!-- Warm Golden Typography & Sacred Devanagari Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <!-- Component Stylesheets -->
+    <link rel="stylesheet" href="css/welcome.css">
+    <link rel="stylesheet" href="css/curtains.css">
+    <link rel="stylesheet" href="css/sanctum.css">
+    <link rel="stylesheet" href="css/aarti_player.css">
+    <link rel="stylesheet" href="css/aarti.css">
+
+    <!-- MediaPipe Hands CDN for Camera Gesture Aarti -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Sacred Audio Assets -->
+    <audio id="shankhAudio" preload="auto">
+        <source src="shankh_naad.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="aartiAudio" preload="metadata">
+        <source src="media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
+    </audio>
+
+    <main id="app">
+        <!-- =================================================================
+             PHASE 1: WELCOME SCREEN (UNMODIFIED)
+             Full viewport video, responsive, muted, autoplay, playsinline.
+             Subtle, elegant fixed corner message: "Scroll for Maa's Darshan ↓"
+             ================================================================= -->
+        <section id="welcomeScreen" class="welcome-screen">
+            <video id="welcomeVideo" class="welcome-video" autoplay muted loop playsinline poster="darshan_poster.png">
+                <source src="cinematic_diwali_darshan_1080p.mp4" type="video/mp4">
+                <source src="cinematic_diwali_darshan_centered.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            <div id="scrollPrompt" class="scroll-prompt" role="button" aria-label="Scroll for Maa's Darshan">
+                <span>Scroll for Maa's Darshan</span>
+                <span class="scroll-arrow">↓</span>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             PHASE 2: VIRTUAL TEMPLE CURTAINS COMPONENT
+             Luxurious red silk panels with golden zari & tassels.
+             ================================================================= -->
+        <div id="templeCurtainsStage" class="temple-curtains-stage">
+            <div id="curtainLeft" class="curtain-panel curtain-left">
+                <div class="curtain-zari-top"></div>
+                <div class="curtain-tassels-bottom"></div>
+            </div>
+            <div id="curtainRight" class="curtain-panel curtain-right">
+                <div class="curtain-zari-top"></div>
+                <div class="curtain-tassels-bottom"></div>
+            </div>
+            <div id="curtainLightLeak" class="curtain-light-leak"></div>
+            <canvas id="curtainFxCanvas"></canvas>
+        </div>
+
+        <!-- =================================================================
+             PHASE 2: SANCTUM SANCTORUM — FULLSCREEN MAA LAKSHMI DARSHAN
+             100vw x 100vh Edge-to-Edge with complete figure, both white elephants,
+             pink lotus throne, golden crown, Dhan Varsha & flower rain.
+             ================================================================= -->
+        <section id="sanctumSanctorum" class="sanctum-sanctorum">
+            <!-- Fullscreen Edge-to-Edge Maa Lakshmi Darshan Presentation -->
+            <div class="fullscreen-darshan-container">
+                <!-- Layer 1: Blurred Duplicate for filling viewport on mobile/non-16:9 displays -->
+                <img src="maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
+                <!-- Layer 2: Main Foreground Crisp 4K Master Artwork of Maa Lakshmi -->
+                <img src="maa_lakshmi_darshan_4k.jpg" 
+                     srcset="maa_lakshmi_darshan_1080p.jpg 1920w, maa_lakshmi_darshan_4k.jpg 3840w"
+                     sizes="100vw"
+                     alt="Maa Maha Lakshmi Divine Fullscreen Darshan" 
+                     class="darshan-main-img" 
+                     id="deityDarshanImg">
+            </div>
+
+            <!-- Atmospheric Divine Light Rays Layer -->
+            <div class="divine-rays-layer"></div>
+
+            <!-- Phase 3B: Devotional Aarti Lyrics & Mandir Audio Player Pedestal -->
+            <div id="aartiPlayerPedestal" class="mandir-lyrics-pedestal" role="region" aria-label="Maa Lakshmi Aarti Audio and Lyrics">
+                <!-- Synchronized Devanagari Lyrics Display -->
+                <div class="lyrics-stage">
+                    <div id="lyricPrev" class="lyric-line-prev" aria-hidden="true"></div>
+                    <div id="lyricCurrent" class="lyric-line-current" aria-live="polite"></div>
+                    <div id="lyricNext" class="lyric-line-next" aria-hidden="true"></div>
+                </div>
+
+                <!-- Custom Mandir Audio Controls -->
+                <div class="player-controls-row">
+                    <button id="btnPlayPause" class="btn-mandir-ctrl btn-mandir-play" aria-label="Play Aarti">▶</button>
+                    <button id="btnReplay" class="btn-mandir-ctrl" aria-label="Replay Aarti">↺</button>
+                    <span id="currentTimeDisplay" class="time-display">00:00</span>
+                    <div class="seek-bar-wrapper">
+                        <input type="range" id="aartiSeekSlider" class="mandir-seek-slider" min="0" max="331" value="0" step="1" aria-label="Aarti Progress">
+                    </div>
+                    <span id="totalTimeDisplay" class="time-display">05:31</span>
+                    <div class="volume-group">
+                        <button id="btnVolumeIcon" class="btn-vol-icon" aria-label="Mute or Unmute">🔊</button>
+                        <input type="range" id="aartiVolSlider" class="mandir-vol-slider" min="0" max="1" value="0.85" step="0.01" aria-label="Volume">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fullscreen Particle Canvas (Flowers, Diya Flames, Smoke & Coins) -->
+            <canvas id="divineEnvCanvas"></canvas>
+
+            <!-- Radiant Golden Divine Aura (Prabha Mandal) Behind Maa's Crown -->
+            <div class="golden-prabha-aura"></div>
+
+            <!-- Phase 4: Top Aarti Toolbar -->
+            <div id="aartiToolbar" class="aarti-toolbar">
+                <div class="aarti-counter-badge">
+                    <span class="aarti-counter-icon">🪔</span>
+                    <span id="aartiRoundText">Aarti Rounds: 0 / 7</span>
+                </div>
+                <div class="aarti-btn-group">
+                    <button id="camToggleBtn" class="btn-aarti btn-aarti-outline">
+                        📷 Hand Gesture Aarti
+                    </button>
+                    <button id="autoAartiBtn" class="btn-aarti">
+                        ▶ Auto Aarti
+                    </button>
+                </div>
+            </div>
+
+            <!-- Phase 4: Floating Ornate Aarti Thali with Living Flames -->
+            <div id="aartiThali">
+                <div class="thali-brass-disc">
+                    <!-- Central Camphor Jyoti -->
+                    <div class="thali-flame-kapoor"></div>
+                    <!-- 4 Ghee Wicks (Panch Pradeep) -->
+                    <div class="thali-ghee-wick wick-pos-top"></div>
+                    <div class="thali-ghee-wick wick-pos-bottom"></div>
+                    <div class="thali-ghee-wick wick-pos-left"></div>
+                    <div class="thali-ghee-wick wick-pos-right"></div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Live Camera PiP Preview -->
+            <div id="camViewBox">
+                <video id="camVideo" autoplay muted playsinline></video>
+                <canvas id="camOverlayCanvas"></canvas>
+                <div class="cam-status-label">✋ Hand Tracking Active</div>
+            </div>
+
+            <!-- Phase 5: Final Divine Blessings Modal -->
+            <div id="finalBlessingsModal">
+                <div class="blessing-swastik">卐</div>
+                <h2 class="blessing-heading">॥ शुभ दीपावली ॥</h2>
+                <div class="blessing-body">
+                    <p>माँ महालक्ष्मी की कृपा से आपके जीवन में सदैव सुख, शांति, समृद्धि और आरोग्य का वास हो।</p>
+                    <p class="blessing-mantra-quote">"सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके ।<br>शरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते ॥"</p>
+                </div>
+                <button class="btn-aarti" id="btnRestartAarti">
+                    ✨ पुनः दर्शन एवं आरती
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- GSAP for Timeline-Based Cinematic Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Phase Components -->
+    <script src="js/welcome.js"></script>
+    <script src="js/curtains.js"></script>
+    <script src="js/environment.js"></script>
+    <script src="js/aarti_player.js"></script>
+    <script src="js/aarti.js"></script>
+
+    <!-- Master Phase Coordinator -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Initialize Phase 2 Divine Environment Component (Flowers & Coins physics)
+            const environment = new DivineEnvironmentComponent('divineEnvCanvas');
+
+            // 2. Initialize Phase 3B Devotional Aarti Player & Synchronized Lyrics Engine
+            const aartiPlayer = new MaaLakshmiAartiPlayer({
+                audioId: 'aartiAudio',
+                containerId: 'aartiPlayerPedestal'
+            });
+
+            // 3. Initialize Phase 4 & 5 Interactive Aarti & Final Blessings Engine
+            const aarti = new AartiInteractionComponent({
+                environment: environment,
+                player: aartiPlayer
+            });
+
+            // 4. Initialize Phase 2 Temple Curtains Component (GSAP timeline & Voiceover)
+            const curtains = new TempleCurtainsComponent({
+                onRevealComplete: () => {
+                    console.log('Sanctum Sanctorum is now active.');
+                    // Start flower and coin physics loop upon reveal
+                    environment.start();
+                    // Reveal floating Aarti Thali
+                    aarti.showThali();
+                    // Begin sacred Aarti bhajan soundtrack smoothly
+                    aartiPlayer.play();
+                }
+            });
+
+            // 5. Initialize Phase 1 Welcome Screen Component (Scroll/Gesture detection)
+            const welcome = new WelcomeScreen({
+                onScrollTrigger: () => {
+                    // Transition exactly once
+                    welcome.hide();
+                    // Open temple curtains with GSAP, voiceover and sacred sound
+                    curtains.openCurtains();
+                }
+            });
+
+            // Global references for debugging & user interaction
+            window.appWelcome = welcome;
+            window.appCurtains = curtains;
+            window.appEnvironment = environment;
+            window.appAartiPlayer = aartiPlayer;
+            window.appAarti = aarti;
+        });
+    </script>
+</body>
+</html>

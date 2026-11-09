@@ -1,0 +1,122 @@
+/* ==========================================================================
+   PHASE 2: LUXURIOUS RED SILK TEMPLE CURTAINS COMPONENT
+   ========================================================================== */
+
+/* Fullscreen Curtains Layer */
+.temple-curtains-stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 15;
+    pointer-events: none;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Luxurious Red Silk Curtain Panels */
+.curtain-panel {
+    width: 50vw;
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(to bottom, #8A0000 0%, #520000 50%, #290000 100%);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
+    will-change: transform;
+    
+    /* Authentic vertical silk fabric folds & golden sheen */
+    background-image: 
+        repeating-linear-gradient(
+            90deg, 
+            rgba(0, 0, 0, 0.42) 0px, 
+            rgba(255, 215, 0, 0.09) 30px, 
+            rgba(0, 0, 0, 0.45) 60px, 
+            transparent 60px, 
+            transparent 90px
+        ),
+        radial-gradient(ellipse at 50% 10%, rgba(255, 215, 0, 0.25) 0%, transparent 68%);
+}
+
+.curtain-left {
+    border-right: 4px solid #FFD700;
+    transform-origin: left center;
+}
+
+.curtain-right {
+    border-left: 4px solid #FFD700;
+    transform-origin: right center;
+}
+
+/* Golden Embroidered Zari Top Arch / Valance */
+.curtain-zari-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 36px;
+    background: linear-gradient(135deg, #B8860B 0%, #FFD700 50%, #8C6D1F 100%);
+    box-shadow: 0 5px 16px rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid #FFF8DC;
+    z-index: 2;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.2) 0px,
+        rgba(255, 255, 255, 0.2) 6px,
+        transparent 6px,
+        transparent 12px
+    );
+}
+
+/* Golden Tassels on Bottom Border */
+.curtain-tassels-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 36px;
+    background: repeating-linear-gradient(
+        90deg, 
+        #FFD700 0px, 
+        #FFD700 10px, 
+        #B8860B 10px, 
+        #B8860B 20px, 
+        #8C6D1F 20px, 
+        #8C6D1F 30px
+    );
+    border-top: 3px solid #FFF8DC;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.7);
+    z-index: 2;
+}
+
+/* Center Golden Light Leak Beam (Between Parting Curtains) */
+.curtain-light-leak {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 100vh;
+    background: radial-gradient(ellipse at 50% 50%, rgba(255, 220, 100, 0.9) 0%, rgba(255, 160, 20, 0.4) 40%, transparent 80%);
+    filter: blur(8px);
+    opacity: 0;
+    z-index: 16;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+/* Golden Sparkle Burst Canvas during Curtain Opening */
+#curtainFxCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 18;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+    .curtain-panel {
+        transition: opacity 0.8s ease !important;
+    }
+}

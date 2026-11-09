@@ -1,0 +1,217 @@
+/* ==========================================================================
+   PHASE 2: FULLSCREEN MAA LAKSHMI CINEMATIC SANCTUM STAGE
+   - Edge-to-edge 16:9 master presentation with zero cropping of sacred figures
+   - Responsive dual-layer mobile portrait ambient blur backdrop
+   - Dynamic volumetric god rays with gentle oscillation
+   - Breathing golden Prabha Mandal (halo) with slow celestial rotation
+   - Subtle living candlelight ambient pulse
+   ========================================================================== */
+
+/* Fullscreen Sanctum Sanctorum Stage */
+.sanctum-sanctorum {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 5;
+    background-color: #080301;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: sanctum-candlelight-pulse 12s infinite alternate ease-in-out;
+}
+
+.sanctum-sanctorum.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Subtle collective temple lamp breathing pulse */
+@keyframes sanctum-candlelight-pulse {
+    0% {
+        filter: brightness(1.0) saturate(1.02);
+    }
+    50% {
+        filter: brightness(1.04) saturate(1.06);
+    }
+    100% {
+        filter: brightness(0.98) saturate(1.0);
+    }
+}
+
+/* Edge-to-Edge Fullscreen Darshan Container (No borders, No margins) */
+.fullscreen-darshan-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+/* Layer 1: Blurred Duplicate Background for Non-16:9 & Mobile Screens */
+.darshan-bg-blur {
+    position: absolute;
+    top: -6%;
+    left: -6%;
+    width: 112%;
+    height: 112%;
+    object-fit: cover;
+    object-position: center;
+    filter: blur(36px) brightness(0.52) saturate(1.2);
+    transform: scale(1.08);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Layer 2: Main Foreground Crisp Master Artwork of Maa Lakshmi */
+.darshan-main-img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Edge-to-edge on 16:9 desktop */
+    object-position: center;
+    z-index: 2;
+    filter: drop-shadow(0 0 40px rgba(255, 170, 0, 0.28));
+    transition: filter 1.2s ease-out;
+}
+
+/* Responsive Rule for Mobile / Portrait Viewports (Aspect Ratio < 16:10)
+   Ensures complete composition (Maa, both white elephants, crown, lotus, pillars)
+   remains 100% visible without any cropping or distortion */
+@media (max-aspect-ratio: 16/10) {
+    .darshan-main-img {
+        object-fit: contain;
+    }
+}
+
+/* Layer 3: Radiant Golden Divine Halo (Prabha Mandal) Behind Maa's Crown */
+.golden-prabha-aura {
+    position: absolute;
+    width: min(54vw, 440px);
+    height: min(54vw, 440px);
+    top: 15%;
+    left: calc(50% - min(27vw, 220px));
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 235, 120, 0.42) 0%,
+        rgba(255, 180, 20, 0.22) 42%,
+        rgba(255, 120, 0, 0.08) 65%,
+        transparent 75%
+    );
+    filter: blur(28px);
+    mix-blend-mode: screen;
+    animation: aura-radiance-breathe 26s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 3;
+}
+
+@keyframes aura-radiance-breathe {
+    0%, 100% {
+        transform: scale(0.97) rotate(0deg);
+        opacity: 0.72;
+    }
+    50% {
+        transform: scale(1.08) rotate(180deg);
+        opacity: 0.94;
+        filter: blur(34px);
+    }
+}
+
+/* Layer 4: Soft Volumetric Divine God Rays */
+.divine-rays-layer {
+    position: absolute;
+    top: -25%;
+    left: -25%;
+    width: 150%;
+    height: 150%;
+    background: 
+        radial-gradient(circle at 50% 25%, rgba(255, 220, 80, 0.15) 0%, transparent 65%),
+        repeating-conic-gradient(
+            from 0deg at 50% 25%,
+            rgba(255, 215, 0, 0.05) 0deg,
+            transparent 8deg,
+            rgba(255, 165, 0, 0.06) 16deg,
+            transparent 24deg
+        );
+    filter: blur(14px);
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 4;
+    animation: divine-rays-sway 22s infinite alternate ease-in-out;
+}
+
+@keyframes divine-rays-sway {
+    0% {
+        transform: rotate(-3.5deg) scale(0.98);
+        opacity: 0.75;
+    }
+    100% {
+        transform: rotate(3.5deg) scale(1.05);
+        opacity: 0.95;
+    }
+}
+
+/* Layer 5: Canvas for Diya Flames, Petals, Coins, Prana Dust & Incense Smoke */
+#divineEnvCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 6;
+}
+
+/* Layer 6: Discreet Sacred Sanskrit Header Pill */
+.sanctum-mantra-pill {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 20px;
+    border-radius: 24px;
+    background: rgba(20, 6, 2, 0.78);
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    color: #FFE082;
+    font-size: 0.9rem;
+    letter-spacing: 1.8px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(255, 160, 0, 0.3);
+    pointer-events: none;
+    font-family: 'Cinzel', serif;
+}
+
+.mantra-lamp-icon {
+    color: #FFD700;
+    font-size: 1.1rem;
+    animation: lamp-glow 2.2s infinite alternate ease-in-out;
+}
+
+@keyframes lamp-glow {
+    0% { filter: drop-shadow(0 0 3px #FFD700); }
+    100% { filter: drop-shadow(0 0 10px #FFA500); }
+}
+
+/* Responsive Mobile Placement */
+@media (max-width: 768px) {
+    .sanctum-mantra-pill {
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.8rem;
+        padding: 6px 14px;
+        white-space: nowrap;
+    }
+}

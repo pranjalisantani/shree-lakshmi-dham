@@ -1,0 +1,311 @@
+/* ==========================================================================
+   PHASE 3B: DEVOTIONAL AARTI AUDIO PLAYER & SYNCHRONIZED HINDI LYRICS
+   - Classical Temple Pedestal Aesthetic (Gold, Ebony, and Deep Maroon)
+   - Synchronized Devanagari Typography (Current, Previous, Next lines)
+   - Complete Custom Audio Controls (Play/Pause, Seek, Replay, Volume, Timer)
+   - Responsive Layout (Desktop Widescreen & Mobile Portrait)
+   ========================================================================== */
+
+/* Main Floating Mandir Pedestal Container */
+.mandir-lyrics-pedestal {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(92vw, 760px);
+    background: linear-gradient(180deg, rgba(22, 6, 2, 0.92) 0%, rgba(12, 3, 1, 0.96) 100%);
+    border: 1.5px solid rgba(255, 215, 0, 0.45);
+    border-radius: 20px;
+    padding: 16px 24px 14px;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.85),
+        0 0 25px rgba(255, 170, 0, 0.22),
+        inset 0 1px 0 rgba(255, 240, 160, 0.2);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+/* ==========================================================================
+   SYNCHRONIZED DEVANAGARI LYRICS DISPLAY
+   ========================================================================== */
+.lyrics-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 86px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 4px 8px;
+}
+
+/* Previous Line (Subtle Preview) */
+.lyric-line-prev {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 0.88rem;
+    color: rgba(255, 224, 130, 0.42);
+    margin-bottom: 4px;
+    height: 1.3em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 95%;
+    transition: all 0.4s ease;
+}
+
+/* Current Active Line (Luminous Golden Focus) */
+.lyric-line-current {
+    font-family: 'Rozha One', 'Noto Serif Devanagari', serif;
+    font-size: 1.38rem;
+    line-height: 1.45;
+    background: linear-gradient(135deg, #FFFDE7 0%, #FFD700 50%, #FFA000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 12px rgba(255, 193, 7, 0.65));
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.35s ease;
+    margin: 2px 0;
+    max-width: 98%;
+}
+
+/* Instrumental Section Indicator */
+.lyric-instrumental-badge {
+    font-family: 'Cinzel', 'Noto Serif Devanagari', serif;
+    font-size: 0.95rem;
+    color: #FFE082;
+    background: rgba(255, 193, 7, 0.12);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    padding: 4px 18px;
+    border-radius: 20px;
+    letter-spacing: 1.2px;
+    animation: instrumental-pulse 2.4s infinite ease-in-out;
+}
+
+@keyframes instrumental-pulse {
+    0%, 100% { opacity: 0.75; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1.02); filter: drop-shadow(0 0 8px #FFD700); }
+}
+
+/* Next Line (Upcoming Context) */
+.lyric-line-next {
+    font-family: 'Noto Serif Devanagari', serif;
+    font-size: 0.86rem;
+    color: rgba(255, 215, 100, 0.45);
+    margin-top: 4px;
+    height: 1.3em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 95%;
+    transition: all 0.4s ease;
+}
+
+/* ==========================================================================
+   CUSTOM MANDIR AUDIO CONTROLS
+   ========================================================================== */
+.player-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+/* Circular Golden Action Buttons */
+.btn-mandir-ctrl {
+    background: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #996515 100%);
+    border: 1px solid #FFF8DC;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #120400;
+    font-size: 1.05rem;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-mandir-ctrl:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.75);
+    background: linear-gradient(135deg, #FFF176 0%, #FFD700 50%, #FFA000 100%);
+}
+
+.btn-mandir-play {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    font-size: 1.25rem;
+}
+
+/* Timestamp Timers */
+.time-display {
+    font-family: 'Cinzel', monospace;
+    font-size: 0.82rem;
+    color: #FFE082;
+    min-width: 42px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Seek Bar Track & Thumb */
+.seek-bar-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.mandir-seek-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 4px;
+    background: rgba(255, 215, 0, 0.22);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.mandir-seek-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FFF9C4 0%, #FFD700 65%, #B8860B 100%);
+    border: 1.5px solid #FFFFFF;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.mandir-seek-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+.mandir-seek-slider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #FFF9C4 0%, #FFD700 65%, #B8860B 100%);
+    border: 1.5px solid #FFFFFF;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.9);
+    cursor: pointer;
+}
+
+/* Volume Slider Group */
+.volume-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 105px;
+}
+
+.btn-vol-icon {
+    background: none;
+    border: none;
+    color: #FFE082;
+    font-size: 1.05rem;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.btn-vol-icon:hover {
+    color: #FFF;
+}
+
+.mandir-vol-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 70px;
+    height: 4px;
+    border-radius: 3px;
+    background: rgba(255, 215, 0, 0.25);
+    outline: none;
+    cursor: pointer;
+}
+
+.mandir-vol-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #FFD700;
+    border: 1px solid #FFF;
+    cursor: pointer;
+}
+
+.mandir-vol-slider::-moz-range-thumb {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #FFD700;
+    border: 1px solid #FFF;
+    cursor: pointer;
+}
+
+/* Mobile Responsive Styling */
+@media (max-width: 768px) {
+    .mandir-lyrics-pedestal {
+        bottom: 14px;
+        padding: 12px 14px 10px;
+        width: 95vw;
+        gap: 8px;
+    }
+
+    .lyrics-stage {
+        min-height: 72px;
+    }
+
+    .lyric-line-current {
+        font-size: 1.05rem;
+    }
+
+    .lyric-line-prev,
+    .lyric-line-next {
+        font-size: 0.74rem;
+    }
+
+    .player-controls-row {
+        gap: 8px;
+    }
+
+    .btn-mandir-ctrl {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        font-size: 0.88rem;
+    }
+
+    .btn-mandir-play {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        font-size: 1.05rem;
+    }
+
+    .volume-group {
+        display: none; /* Hide volume on mobile in favor of physical device keys */
+    }
+
+    .time-display {
+        font-size: 0.72rem;
+        min-width: 34px;
+    }
+}
+

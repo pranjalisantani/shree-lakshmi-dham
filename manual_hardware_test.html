@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divinity Maa Lakshmi - Real Hardware Acceptance Test Harness</title>
+    
+    <!-- Warm Golden Typography & Sacred Devanagari Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=Rozha+One&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Production Stylesheets -->
+    <link rel="stylesheet" href="css/welcome.css">
+    <link rel="stylesheet" href="css/curtains.css">
+    <link rel="stylesheet" href="css/sanctum.css">
+    <link rel="stylesheet" href="css/aarti_player.css">
+    <link rel="stylesheet" href="css/aarti.css">
+
+    <!-- MediaPipe Hands CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Diagnostics HUD Styling -->
+    <style>
+        /* Force Sanctum Active for Direct Test Harness */
+        .sanctum-sanctorum {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .welcome-screen, .temple-curtains-stage {
+            display: none !important;
+        }
+
+        /* Hardware Diagnostic HUD Console */
+        #hardwareDiagnosticsHUD {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            width: 360px;
+            max-height: calc(100vh - 100px);
+            background: rgba(14, 4, 1, 0.94);
+            border: 1.5px solid #FFD700;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            color: #FFE082;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        #hardwareDiagnosticsHUD.minimized {
+            width: 220px;
+            max-height: 44px;
+            overflow: hidden;
+        }
+
+        .hud-header {
+            background: linear-gradient(135deg, #2A0E04 0%, #150601 100%);
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .hud-title {
+            font-weight: 700;
+            color: #FFD700;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hud-content {
+            padding: 12px 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .telemetry-group {
+            background: rgba(35, 12, 4, 0.6);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 8px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .group-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            color: #FFA000;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .telemetry-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .telemetry-key {
+            color: rgba(255, 224, 130, 0.75);
+        }
+
+        .telemetry-val {
+            font-weight: 600;
+            color: #FFF;
+        }
+
+        .status-pill {
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .pill-green { background: #1B5E20; color: #A5D6A7; border: 1px solid #4CAF50; }
+        .pill-red { background: #B71C1C; color: #FFCDD2; border: 1px solid #F44336; }
+        .pill-amber { background: #E65100; color: #FFE0B2; border: 1px solid #FF9800; }
+        .pill-gray { background: #37474F; color: #CFD8DC; border: 1px solid #78909C; }
+
+        .checklist-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.74rem;
+            line-height: 1.35;
+            color: #FFF8E1;
+            cursor: pointer;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-top: 2px;
+            accent-color: #FFD700;
+            cursor: pointer;
+        }
+
+        .btn-hud-action {
+            background: linear-gradient(135deg, #B8860B 0%, #D4AF37 100%);
+            color: #120400;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.74rem;
+            cursor: pointer;
+            margin-top: 4px;
+            text-align: center;
+        }
+        .btn-hud-action:hover {
+            background: #FFE082;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sacred Audio Assets -->
+    <audio id="shankhAudio" preload="auto">
+        <source src="shankh_naad.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="aartiAudio" preload="metadata">
+        <source src="media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
+    </audio>
+
+    <main id="app">
+        <section id="sanctumSanctorum" class="sanctum-sanctorum active">
+            <!-- Fullscreen Edge-to-Edge Maa Lakshmi Darshan Presentation -->
+            <div class="fullscreen-darshan-container">
+                <img src="maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
+                <img src="maa_lakshmi_darshan_4k.jpg" 
+                     srcset="maa_lakshmi_darshan_1080p.jpg 1920w, maa_lakshmi_darshan_4k.jpg 3840w"
+                     sizes="100vw"
+                     alt="Maa Maha Lakshmi Divine Fullscreen Darshan" 
+                     class="darshan-main-img" 
+                     id="deityDarshanImg">
+            </div>
+
+            <!-- Atmospheric Divine Light Rays Layer -->
+            <div class="divine-rays-layer"></div>
+
+            <!-- Fullscreen Particle Canvas (Flowers, Diya Flames, Incense Smoke & Coins) -->
+            <canvas id="divineEnvCanvas"></canvas>
+
+            <!-- Radiant Golden Divine Aura Behind Maa's Crown -->
+            <div class="golden-prabha-aura"></div>
+
+            <!-- Phase 3B: Devotional Aarti Lyrics & Mandir Audio Player Pedestal -->
+            <div id="aartiPlayerPedestal" class="mandir-lyrics-pedestal" role="region" aria-label="Maa Lakshmi Aarti Audio and Lyrics">
+                <div class="lyrics-stage">
+                    <div id="lyricPrev" class="lyric-line-prev"></div>
+                    <div id="lyricCurrent" class="lyric-line-current"></div>
+                    <div id="lyricNext" class="lyric-line-next"></div>
+                </div>
+
+                <div class="player-controls-row">
+                    <button id="btnPlayPause" class="btn-mandir-ctrl btn-mandir-play" aria-label="Play Aarti">▶</button>
+                    <button id="btnReplay" class="btn-mandir-ctrl" aria-label="Replay Aarti">↺</button>
+                    <span id="currentTimeDisplay" class="time-display">00:00</span>
+                    <div class="seek-bar-wrapper">
+                        <input type="range" id="aartiSeekSlider" class="mandir-seek-slider" min="0" max="331" value="0" step="1">
+                    </div>
+                    <span id="totalTimeDisplay" class="time-display">05:31</span>
+                    <div class="volume-group">
+                        <button id="btnVolumeIcon" class="btn-vol-icon" aria-label="Mute or Unmute">🔊</button>
+                        <input type="range" id="aartiVolSlider" class="mandir-vol-slider" min="0" max="1" value="0.85" step="0.01">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Top Aarti Toolbar -->
+            <div id="aartiToolbar" class="aarti-toolbar">
+                <div class="aarti-counter-badge">
+                    <span class="aarti-counter-icon">🪔</span>
+                    <span id="aartiRoundText">Aarti Rounds: 0 / 7</span>
+                </div>
+                <div class="aarti-btn-group">
+                    <button id="camToggleBtn" class="btn-aarti btn-aarti-outline">📷 Hand Gesture Aarti</button>
+                    <button id="autoAartiBtn" class="btn-aarti">▶ Auto Aarti</button>
+                </div>
+            </div>
+
+            <!-- Phase 4: Floating Ornate Aarti Thali with Living Flames -->
+            <div id="aartiThali">
+                <div class="thali-brass-disc">
+                    <div class="thali-flame-kapoor"></div>
+                    <div class="thali-ghee-wick wick-pos-top"></div>
+                    <div class="thali-ghee-wick wick-pos-bottom"></div>
+                    <div class="thali-ghee-wick wick-pos-left"></div>
+                    <div class="thali-ghee-wick wick-pos-right"></div>
+                </div>
+            </div>
+
+            <!-- Phase 4: Live Camera PiP Preview -->
+            <div id="camViewBox">
+                <video id="camVideo" autoplay muted playsinline></video>
+                <canvas id="camOverlayCanvas"></canvas>
+                <div class="cam-status-label">✋ Hand Tracking Active</div>
+            </div>
+
+            <!-- Phase 5: Final Divine Blessings Modal -->
+            <div id="finalBlessingsModal">
+                <div class="blessing-swastik">卐</div>
+                <h2 class="blessing-heading">॥ शुभ दीपावली ॥</h2>
+                <div class="blessing-body">
+                    <p>माँ महालक्ष्मी की कृपा से आपके जीवन में सदैव सुख, शांति, समृद्धि और आरोग्य का वास हो।</p>
+                    <p class="blessing-mantra-quote">"सर्वमङ्गलमाङ्गल्ये शिवे सर्वार्थसाधिके ।<br>शरण्ये त्र्यम्बके गौरि नारायणि नमोऽस्तु ते ॥"</p>
+                </div>
+                <button class="btn-aarti" id="btnRestartAarti">✨ पुनः दर्शन एवं आरती</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- HARDWARE TESTING DIAGNOSTICS CONSOLE -->
+    <aside id="hardwareDiagnosticsHUD" aria-label="Manual Hardware Acceptance Console">
+        <div class="hud-header" id="hudHeader">
+            <span class="hud-title">🛠️ Hardware Testing HUD</span>
+            <span id="hudToggleIcon">▼</span>
+        </div>
+        <div class="hud-content">
+            <!-- Telemetry Group 1: Camera & Sensor -->
+            <div class="telemetry-group">
+                <div class="group-label">1. Optical Sensor / Webcam</div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Permission:</span>
+                    <span id="hudPermStatus" class="status-pill pill-gray">NOT REQUESTED</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Stream State:</span>
+                    <span id="hudStreamState" class="status-pill pill-gray">INACTIVE</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Resolution:</span>
+                    <span id="hudResVal" class="telemetry-val">—</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Hardware LED:</span>
+                    <span id="hudLedStatus" class="telemetry-val">OFF</span>
+                </div>
+            </div>
+
+            <!-- Telemetry Group 2: Tracking & Palm Detection -->
+            <div class="telemetry-group">
+                <div class="group-label">2. Hand Gesture Tracking</div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Active Engine:</span>
+                    <span id="hudEngineVal" class="telemetry-val">MediaPipe / Local CV</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Tracking State:</span>
+                    <span id="hudLockStatus" class="status-pill pill-gray">IDLE</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Palm (X, Y):</span>
+                    <span id="hudPalmCoord" class="telemetry-val">—</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Skin/Landmark Cnt:</span>
+                    <span id="hudConfVal" class="telemetry-val">—</span>
+                </div>
+            </div>
+
+            <!-- Telemetry Group 3: Parikrama Physics -->
+            <div class="telemetry-group">
+                <div class="group-label">3. Clockwise Parikrama Physics</div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Direction:</span>
+                    <span id="hudDirectionVal" class="status-pill pill-gray">NEUTRAL</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Orbit Radius:</span>
+                    <span id="hudRadiusVal" class="telemetry-val">—</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Cumulative Angle:</span>
+                    <span id="hudAngleVal" class="telemetry-val">0.0° (0.00 rad)</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Completed Rounds:</span>
+                    <span id="hudRoundCount" class="telemetry-val" style="color:#FFD700; font-size:0.9rem;">0 / 7</span>
+                </div>
+                <div class="telemetry-row">
+                    <span class="telemetry-key">Last Bell Chime:</span>
+                    <span id="hudChimeVal" class="telemetry-val">—</span>
+                </div>
+            </div>
+
+            <!-- Telemetry Group 4: Step-by-Step Manual Checklist -->
+            <div class="telemetry-group">
+                <div class="group-label">4. Physical Acceptance Checklist</div>
+                <div class="checklist-group">
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk1">
+                        <span>1. Camera Request & Browser Prompt</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk2">
+                        <span>2. Palm Detection & Reticle Lock</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk3">
+                        <span>3. Natural Left/Right Mirroring</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk4">
+                        <span>4. Tracking Loss & Graceful Damping</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk5">
+                        <span>5. Permission Denial Graceful Handling</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk6">
+                        <span>6. Anticlockwise Rejection (Rounds=0)</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk7">
+                        <span>7. Clockwise 7 Rounds & Chimes</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk8">
+                        <span>8. Blessings & Camera Hardware Shutdown</span>
+                    </label>
+                    <label class="checklist-item">
+                        <input type="checkbox" id="chk9">
+                        <span>9. Reset & Replay Clean Lifecycle</span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="btnResetHUD" class="btn-hud-action">↺ Reset Checklist & Counters</button>
+        </div>
+    </aside>
+
+    <!-- Component Scripts -->
+    <script src="js/environment.js"></script>
+    <script src="js/aarti_player.js"></script>
+    <script src="js/aarti.js"></script>
+
+    <!-- Test Harness & HUD Integration Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Initialize Components
+            const environment = new DivineEnvironmentComponent('divineEnvCanvas');
+            environment.start();
+
+            const aartiPlayer = new MaaLakshmiAartiPlayer({
+                audioId: 'aartiAudio',
+                containerId: 'aartiPlayerPedestal'
+            });
+
+            const aarti = new AartiInteractionComponent({
+                environment: environment,
+                player: aartiPlayer
+            });
+            aarti.showThali();
+
+            window.appEnvironment = environment;
+            window.appAartiPlayer = aartiPlayer;
+            window.appAarti = aarti;
+
+            // 2. HUD Telemetry Hook
+            const hudHeader = document.getElementById('hudHeader');
+            const hudContainer = document.getElementById('hardwareDiagnosticsHUD');
+            const hudPerm = document.getElementById('hudPermStatus');
+            const hudStream = document.getElementById('hudStreamState');
+            const hudRes = document.getElementById('hudResVal');
+            const hudLed = document.getElementById('hudLedStatus');
+            const hudLock = document.getElementById('hudLockStatus');
+            const hudPalm = document.getElementById('hudPalmCoord');
+            const hudConf = document.getElementById('hudConfVal');
+            const hudDir = document.getElementById('hudDirectionVal');
+            const hudRad = document.getElementById('hudRadiusVal');
+            const hudAng = document.getElementById('hudAngleVal');
+            const hudRnd = document.getElementById('hudRoundCount');
+            const hudChime = document.getElementById('hudChimeVal');
+            const btnResetHUD = document.getElementById('btnResetHUD');
+
+            // Minimize / Expand HUD
+            hudHeader.addEventListener('click', () => {
+                hudContainer.classList.toggle('minimized');
+                document.getElementById('hudToggleIcon').textContent = 
+                    hudContainer.classList.contains('minimized') ? '▲' : '▼';
+            });
+
+            // Checklist Persistence in LocalStorage
+            for (let i = 1; i <= 9; i++) {
+                const chk = document.getElementById(`chk${i}`);
+                if (chk) {
+                    chk.checked = localStorage.getItem(`chk_divinity_${i}`) === 'true';
+                    chk.addEventListener('change', () => {
+                        localStorage.setItem(`chk_divinity_${i}`, chk.checked);
+                    });
+                }
+            }
+
+            btnResetHUD.addEventListener('click', () => {
+                for (let i = 1; i <= 9; i++) {
+                    const chk = document.getElementById(`chk${i}`);
+                    if (chk) {
+                        chk.checked = false;
+                        localStorage.removeItem(`chk_divinity_${i}`);
+                    }
+                }
+                aarti.closeBlessingModal();
+            });
+
+            // Audio Chime Hook for HUD
+            const origPlayBell = aarti.playBellChime.bind(aarti);
+            aarti.playBellChime = function(freq, dur) {
+                origPlayBell(freq, dur);
+                if (hudChime) {
+                    hudChime.textContent = `${Math.round(freq)} Hz (${dur.toFixed(1)}s)`;
+                    hudChime.style.color = '#FFD700';
+                    setTimeout(() => { if (hudChime) hudChime.style.color = '#FFF'; }, 800);
+                }
+            };
+
+            // 60 FPS Telemetry Update Loop
+            function updateHUDTelemetry() {
+                // Camera State
+                if (aarti.isCameraActive) {
+                    hudPerm.className = 'status-pill pill-green';
+                    hudPerm.textContent = 'GRANTED';
+                    hudStream.className = 'status-pill pill-green';
+                    hudStream.textContent = 'ACTIVE';
+                    hudLed.textContent = 'ON (ACTIVE)';
+                    hudLed.style.color = '#00FF66';
+                    if (aarti.camVideo && aarti.camVideo.videoWidth) {
+                        hudRes.textContent = `${aarti.camVideo.videoWidth}x${aarti.camVideo.videoHeight}`;
+                    } else {
+                        hudRes.textContent = '320x240 (Stream)';
+                    }
+                } else {
+                    hudStream.className = 'status-pill pill-gray';
+                    hudStream.textContent = 'INACTIVE';
+                    hudLed.textContent = 'OFF';
+                    hudLed.style.color = '#B0BEC5';
+                    hudRes.textContent = '—';
+                }
+
+                // Tracking State
+                const hasHand = (aarti.isCameraActive && (aarti.targetX !== undefined));
+                if (aarti.isCameraActive) {
+                    hudLock.className = 'status-pill pill-green';
+                    hudLock.textContent = 'LOCKED ON PALM';
+                    hudPalm.textContent = `${Math.round(aarti.targetX)}px, ${Math.round(aarti.targetY)}px`;
+                    hudConf.textContent = 'Landmark 9 (High)';
+                } else {
+                    hudLock.className = 'status-pill pill-gray';
+                    hudLock.textContent = 'MOUSE / TOUCH ACTIVE';
+                    hudPalm.textContent = `${Math.round(aarti.targetX)}px, ${Math.round(aarti.targetY)}px`;
+                    hudConf.textContent = 'Local Screen Pointer';
+                }
+
+                // Parikrama Physics
+                const { centerX, centerY } = aarti.getArtworkCenter();
+                const dist = Math.hypot(aarti.targetX - centerX, aarti.targetY - centerY);
+                if (dist < 40) {
+                    hudRad.innerHTML = `<span style="color:#FFA000;">${Math.round(dist)}px (DEADZONE &lt;40)</span>`;
+                } else {
+                    hudRad.innerHTML = `<span style="color:#00FF66;">${Math.round(dist)}px (VALID ORBIT)</span>`;
+                }
+
+                // Cumulative Angle & Direction
+                const deg = (aarti.cumulativeAngle * 180 / Math.PI).toFixed(1);
+                hudAng.textContent = `${deg}° (${aarti.cumulativeAngle.toFixed(2)} rad)`;
+                hudRnd.textContent = `${aarti.completedRounds} / ${aarti.maxRounds}`;
+
+                if (aarti.cumulativeAngle > 0) {
+                    hudDir.className = 'status-pill pill-green';
+                    hudDir.textContent = 'CLOCKWISE';
+                } else {
+                    hudDir.className = 'status-pill pill-gray';
+                    hudDir.textContent = 'NEUTRAL / IDLE';
+                }
+
+                requestAnimationFrame(updateHUDTelemetry);
+            }
+
+            requestAnimationFrame(updateHUDTelemetry);
+        });
+    </script>
+</body>
+</html>
+
