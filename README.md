@@ -10,6 +10,18 @@
 
 ---
 
+## 📸 Visuals & Screenshots
+
+| Desktop 1080p Aarti & Synchronized Lyrics | Final Divine Blessings |
+|:---:|:---:|
+| ![Desktop Aarti Preview](desktop_1080p_aarti_preview.png) | ![Final Blessings Preview](final_blessings_preview.png) |
+
+| Mobile Portrait Darshan & Thali | Dedicated Hardware Diagnostic HUD |
+|:---:|:---:|
+| ![Mobile Portrait Preview](mobile_portrait_aarti_preview.png) | ![Laptop 768p Aarti Preview](laptop_768p_aarti_preview.png) |
+
+---
+
 ## 🌟 Key Features
 
 ### 1. Cinematic Opening & Darshan Reveal
@@ -46,18 +58,6 @@
 - **Optical Hardware Shutdown**: Instantly halts all webcam media streams and shuts off the camera hardware LED.
 - **Shankh Naad & Spoken Blessing**: Celebratory conch call, flower burst, and spoken Hindi blessing prayer.
 - **Radiant Blessing Card**: Glowing festive card with traditional Sanskrit shloka (*"सर्वमङ्गलमाङ्गल्ये..."*) and replay option.
-
----
-
-## 📸 Screenshots
-
-| Desktop 1080p Aarti & Synchronized Lyrics | Final Divine Blessings |
-|:---:|:---:|
-| ![Desktop Aarti Preview](desktop_1080p_aarti_preview.png) | ![Final Blessings Preview](final_blessings_preview.png) |
-
-| Mobile Portrait Darshan & Thali | Dedicated Hardware Diagnostic HUD |
-|:---:|:---:|
-| ![Mobile Portrait Preview](mobile_portrait_aarti_preview.png) | ![Laptop 768p Aarti Preview](laptop_768p_aarti_preview.png) |
 
 ---
 
@@ -145,3 +145,4 @@ shree-lakshmi-dham/
 ## 📜 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
