@@ -136,16 +136,17 @@
                 </div>
             </div>
 
-            <!-- Phase 4: Floating Ornate Aarti Thali with Living Flames -->
+            <!-- Phase 4: Floating Ornate Panchmukhi Aarti Thali with Living Flames -->
             <div id="aartiThali">
                 <div class="thali-brass-disc">
-                    <!-- Central Camphor Jyoti -->
-                    <div class="thali-flame-kapoor"></div>
-                    <!-- 4 Ghee Wicks (Panch Pradeep) -->
-                    <div class="thali-ghee-wick wick-pos-top"></div>
-                    <div class="thali-ghee-wick wick-pos-bottom"></div>
-                    <div class="thali-ghee-wick wick-pos-left"></div>
-                    <div class="thali-ghee-wick wick-pos-right"></div>
+                    <img src="media/images/panchmukhi_aarti_thali.png" alt="Ornate Panchmukhi Brass Aarti Thali" class="thali-plate-img" draggable="false">
+                    <!-- Central Camphor Jyoti (Apex Diya) -->
+                    <div class="thali-flame-kapoor" aria-hidden="true"></div>
+                    <!-- 4 Peripheral Ghee Wicks (Panch Pradeep) -->
+                    <div class="thali-ghee-wick wick-pos-top" aria-hidden="true"></div>
+                    <div class="thali-ghee-wick wick-pos-bottom" aria-hidden="true"></div>
+                    <div class="thali-ghee-wick wick-pos-left" aria-hidden="true"></div>
+                    <div class="thali-ghee-wick wick-pos-right" aria-hidden="true"></div>
                 </div>
             </div>
 
@@ -173,6 +174,10 @@
 
     <!-- GSAP for Timeline-Based Cinematic Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- MediaPipe Hands CDN for Camera Gesture Aarti -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 
     <!-- Phase Components -->
     <script src="js/welcome.js"></script>

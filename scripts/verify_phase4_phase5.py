@@ -88,73 +88,54 @@ def audit_files_and_code():
     return all_ok
 
 
-def draw_aarti_thali(draw, cx, cy, sz=180, tilt=0):
-    """Draws high-fidelity ornate brass Aarti Thali with camphor jyoti and 4 wicks"""
-    r = sz // 2
+def draw_aarti_thali(layer, draw, cx, cy, sz=250, tilt=0):
+    """Draws authentic ornate Panchmukhi brass Aarti Thali with 5 perfectly aligned flames"""
+    tw = sz
+    th = int(sz / 1.5625)
+    tx = cx - tw // 2
+    ty = cy - th // 2
 
-    # Outer brass rim with shadow
-    for pr in range(r + 14, r, -1):
-        alpha = int((1.0 - (pr - r) / 14.0) * 85)
-        draw.ellipse([cx - pr, cy - pr, cx + pr, cy + pr], fill=(255, 185, 0, alpha))
+    # Drop shadow
+    shadow = Image.new('RGBA', layer.size, (0, 0, 0, 0))
+    s_draw = ImageDraw.Draw(shadow)
+    s_draw.ellipse([tx + int(tw * 0.04), ty + int(th * 0.12), tx + int(tw * 0.96), ty + int(th * 1.12)], fill=(0, 0, 0, 150))
+    shadow = shadow.filter(ImageFilter.GaussianBlur(max(int(sz * 0.05), 3)))
+    layer.paste(Image.alpha_composite(Image.new('RGBA', layer.size, (0, 0, 0, 0)), shadow), (0, 0), shadow)
 
-    # Brass disc gradient
-    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(212, 175, 55, 255), outline=(255, 248, 220, 255), width=3)
-    # Inner engraving rings
-    draw.ellipse([cx - r*0.82, cy - r*0.82, cx + r*0.82, cy + r*0.82], outline=(140, 109, 31, 220), width=2)
-    draw.ellipse([cx - r*0.55, cy - r*0.55, cx + r*0.55, cy + r*0.55], outline=(180, 130, 30, 200), width=1)
+    # Authentic Panchmukhi Thali Plate
+    thali_path = os.path.join(WORKSPACE, 'media', 'images', 'panchmukhi_aarti_thali.png')
+    if os.path.exists(thali_path):
+        thali_img = Image.open(thali_path).convert('RGBA')
+        thali_scaled = thali_img.resize((tw, th), Image.Resampling.LANCZOS)
+        layer.paste(thali_scaled, (tx, ty), thali_scaled)
 
-    # 4 Peripheral Ghee Wicks (Panch Pradeep)
-    wick_positions = [
-        (cx, cy - int(r * 0.72)), # Top
-        (cx, cy + int(r * 0.72)), # Bottom
-        (cx - int(r * 0.72), cy), # Left
-        (cx + int(r * 0.72), cy)  # Right
+    # 5 Authentically Aligned Flames:
+    # 1: Diya 1 (Lower-Left), 2: Diya 2 (Upper-Left), 3: Kapoor (Apex), 4: Diya 4 (Upper-Right), 5: Diya 5 (Lower-Right)
+    flame_w = max(int(tw * 0.048), 8)
+    flame_h = max(int(th * 0.15), 16)
+    kapoor_w = max(int(tw * 0.056), 10)
+    kapoor_h = max(int(th * 0.165), 18)
+
+    flames = [
+        ('Diya 1', 0.3307, 0.3992, flame_w, flame_h, -2.0),
+        ('Diya 2', 0.3711, 0.3014, flame_w, flame_h, -1.0),
+        ('Kapoor', 0.5026, 0.2281, kapoor_w, kapoor_h, 0.0),
+        ('Diya 4', 0.6315, 0.3014, flame_w, flame_h, 1.0),
+        ('Diya 5', 0.6732, 0.3992, flame_w, flame_h, 2.0),
     ]
 
-    for wx, wy in wick_positions:
-        # Wick glow pool
-        for gr in range(16, 0, -2):
-            ga = int((1.0 - gr / 16.0) * 75)
-            draw.ellipse([wx - gr, wy - gr, wx + gr, wy + gr], fill=(255, 143, 0, ga))
-        # Brass wick holder
-        draw.ellipse([wx - 5, wy - 3, wx + 5, wy + 3], fill=(139, 69, 19, 255))
-        # Flame
-        draw.ellipse([wx - 4, wy - 12, wx + 4, wy], fill=(255, 111, 0, 230))
-        draw.ellipse([wx - 2.5, wy - 10, wx + 2.5, wy - 1], fill=(255, 213, 79, 255))
-        draw.ellipse([wx - 1.2, wy - 7, wx + 1.2, wy - 2], fill=(255, 255, 255, 255))
+    for name, xp, yp, fw, fh, ftilt in flames:
+        fx = tx + int(xp * tw)
+        fy = ty + int(yp * th)
+        # Velocity aerodynamic tilt
+        dx = int(math.sin(math.radians(tilt + ftilt)) * (fh * 0.18))
 
-    # Central Camphor Jyoti (Kapoor Flame) with velocity tilt
-    # Flame outer aura
-    for gr in range(28, 0, -3):
-        ga = int((1.0 - gr / 28.0) * 85)
-        draw.ellipse([cx - gr, cy - gr - 10, cx + gr, cy + gr - 10], fill=(255, 152, 0, ga))
-
-    # Brass Kapoor holder
-    draw.ellipse([cx - 10, cy - 6, cx + 10, cy + 6], fill=(100, 50, 10, 255), outline=(255, 215, 0, 200), width=1)
-
-    # Aerodynamic tilted flame
-    dx = math.sin(math.radians(tilt)) * 8
-    draw.polygon([
-        (cx - 8, cy),
-        (cx + 8, cy),
-        (cx + 6 + dx*0.5, cy - 18),
-        (cx + dx, cy - 32),
-        (cx - 6 + dx*0.5, cy - 18)
-    ], fill=(255, 100, 0, 240))
-
-    draw.polygon([
-        (cx - 5, cy),
-        (cx + 5, cy),
-        (cx + 4 + dx*0.4, cy - 14),
-        (cx + dx*0.7, cy - 24),
-        (cx - 4 + dx*0.4, cy - 14)
-    ], fill=(255, 245, 157, 255))
-
-    draw.polygon([
-        (cx - 2, cy - 2),
-        (cx + 2, cy - 2),
-        (cx + dx*0.4, cy - 16)
-    ], fill=(255, 255, 255, 255))
+        # Outer flame aura
+        draw.ellipse([fx - fw // 2 - 3 + dx // 2, fy - fh - 3, fx + fw // 2 + 3 + dx // 2, fy + 3], fill=(255, 140, 0, 110))
+        # Golden flame body
+        draw.ellipse([fx - fw // 2 + dx // 2, fy - fh, fx + fw // 2 + dx // 2, fy], fill=(255, 215, 0, 210))
+        # White hot inner core
+        draw.ellipse([fx - fw // 4 + dx // 3, fy - int(fh * 0.75), fx + fw // 4 + dx // 3, fy - int(fh * 0.15)], fill=(255, 255, 255, 245))
 
 
 def render_phase4_interactive_scene(output_path, is_mobile=False, custom_w=None, custom_h=None):
@@ -256,7 +237,7 @@ def render_phase4_interactive_scene(output_path, is_mobile=False, custom_w=None,
     ry = min(height * 0.18, 170) if not is_mobile else min(height * 0.14, 85)
     thali_cx = int(width / 2 + math.cos(thali_angle) * rx)
     thali_cy = int(center_y + math.sin(thali_angle) * ry)
-    thali_sz = 175 if not is_mobile else 115
+    thali_sz = 250 if not is_mobile else 190
 
     # Parikrama Trail Guide Curve (Subtle golden glowing guide)
     guide_steps = 60
@@ -266,7 +247,7 @@ def render_phase4_interactive_scene(output_path, is_mobile=False, custom_w=None,
         gy = int(center_y + math.sin(a) * ry)
         thali_draw.ellipse([gx - 1.5, gy - 1.5, gx + 1.5, gy + 1.5], fill=(255, 215, 0, 45))
 
-    draw_aarti_thali(thali_draw, thali_cx, thali_cy, sz=thali_sz, tilt=-12)
+    draw_aarti_thali(thali_layer, thali_draw, thali_cx, thali_cy, sz=thali_sz, tilt=-12)
     viewport = Image.alpha_composite(viewport, thali_layer)
 
     # 3. Top Aarti Toolbar

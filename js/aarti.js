@@ -16,6 +16,7 @@ class AartiInteractionComponent {
     constructor(options = {}) {
         this.thali = document.getElementById('aartiThali');
         this.kapoorFlame = this.thali ? this.thali.querySelector('.thali-flame-kapoor') : null;
+        this.peripheralFlames = this.thali ? Array.from(this.thali.querySelectorAll('.thali-ghee-wick')) : [];
         this.sanctum = document.getElementById('sanctumSanctorum');
         
         // Webcam elements
@@ -52,6 +53,11 @@ class AartiInteractionComponent {
         this.mediaStream = null;
         this.mpHands = null;
         this.mpCamera = null;
+        this.videoFrameCallbackId = null;
+        this.frameFallbackTimer = null;
+        this.isProcessingFrame = false;
+        this.hasHandTracking = false;
+        this.mpFailed = false;
 
         this.isAutoAarti = false;
         this.autoAngle = 0;
@@ -103,8 +109,7 @@ class AartiInteractionComponent {
         this.targetX = this.thaliX;
         this.targetY = this.thaliY;
         if (this.thali) {
-            this.thali.style.left = `${this.thaliX}px`;
-            this.thali.style.top = `${this.thaliY}px`;
+            this.thali.style.transform = `translate3d(${this.thaliX}px, ${this.thaliY}px, 0) translate(-50%, -50%)`;
         }
     }
 
@@ -207,12 +212,14 @@ class AartiInteractionComponent {
                 
                 if (this.camVideo) {
                     this.camVideo.srcObject = this.mediaStream;
+                    await this.camVideo.play().catch(() => {});
                 }
                 if (this.camViewBox) {
                     this.camViewBox.style.display = 'block';
                 }
 
                 this.isCameraActive = true;
+                this.hasHandTracking = false;
                 if (this.camToggleBtn) {
                     this.camToggleBtn.textContent = '📷 Stop Camera';
                     this.camToggleBtn.classList.add('btn-cam-active');
@@ -226,10 +233,10 @@ class AartiInteractionComponent {
                 console.log('Phase 4: Camera hand tracking activated locally in browser.');
 
                 // Check MediaPipe Hands availability
-                if (typeof window.Hands !== 'undefined' && !this.mpHands) {
+                if (typeof window.Hands !== 'undefined' && !this.mpHands && !this.mpFailed) {
                     this.initMediaPipeHands();
                 } else {
-                    requestAnimationFrame(() => this.processWebcamFrame());
+                    this.startCameraLoop();
                 }
             } catch (err) {
                 console.error('Camera access error:', err);
@@ -245,17 +252,37 @@ class AartiInteractionComponent {
             this.mediaStream.getTracks().forEach(track => track.stop());
             this.mediaStream = null;
         }
+        if (this.camVideo) {
+            if (this.videoFrameCallbackId && 'cancelVideoFrameCallback' in this.camVideo) {
+                this.camVideo.cancelVideoFrameCallback(this.videoFrameCallbackId);
+                this.videoFrameCallbackId = null;
+            }
+            this.camVideo.srcObject = null;
+        }
+        if (this.frameFallbackTimer) {
+            clearTimeout(this.frameFallbackTimer);
+            this.frameFallbackTimer = null;
+        }
+        this.isProcessingFrame = false;
+        this.isCameraActive = false;
+        this.hasHandTracking = false;
         if (this.camViewBox) {
             this.camViewBox.style.display = 'none';
         }
-        this.isCameraActive = false;
         if (this.camToggleBtn) {
             this.camToggleBtn.textContent = '📷 Hand Gesture Aarti';
             this.camToggleBtn.classList.remove('btn-cam-active');
         }
+        if (this.camOverlayCtx && this.camOverlay) {
+            this.camOverlayCtx.clearRect(0, 0, this.camOverlay.width, this.camOverlay.height);
+        }
     }
 
     initMediaPipeHands() {
+        if (this.mpHands) {
+            this.startCameraLoop();
+            return;
+        }
         try {
             this.mpHands = new window.Hands({
                 locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
@@ -270,7 +297,7 @@ class AartiInteractionComponent {
             this.mpHands.onResults((results) => {
                 if (!this.isCameraActive) return;
 
-                if (this.camOverlayCtx) {
+                if (this.camOverlayCtx && this.camOverlay) {
                     this.camOverlayCtx.clearRect(0, 0, this.camOverlay.width, this.camOverlay.height);
                 }
 
@@ -280,18 +307,28 @@ class AartiInteractionComponent {
                     const palm = landmarks[9];
 
                     // Mirror X coordinate because camera is mirrored
-                    const normX = 1.0 - palm.x;
-                    const normY = palm.y;
+                    const rawNormX = 1.0 - palm.x;
+                    const rawNormY = palm.y;
 
-                    this.targetX = normX * window.innerWidth;
-                    this.targetY = normY * window.innerHeight;
+                    const rawTargetX = rawNormX * window.innerWidth;
+                    const rawTargetY = rawNormY * window.innerHeight;
+
+                    // Responsive exponential moving average smoothing
+                    if (this.hasHandTracking) {
+                        this.targetX += (rawTargetX - this.targetX) * 0.45;
+                        this.targetY += (rawTargetY - this.targetY) * 0.45;
+                    } else {
+                        this.targetX = rawTargetX;
+                        this.targetY = rawTargetY;
+                        this.hasHandTracking = true;
+                    }
 
                     this.trackCircularMotion(this.targetX, this.targetY);
 
                     // Draw hand indicator on PiP overlay
-                    if (this.camOverlayCtx) {
-                        const pipX = (1.0 - normX) * this.camOverlay.width;
-                        const pipY = normY * this.camOverlay.height;
+                    if (this.camOverlayCtx && this.camOverlay) {
+                        const pipX = (1.0 - rawNormX) * this.camOverlay.width;
+                        const pipY = rawNormY * this.camOverlay.height;
 
                         this.camOverlayCtx.strokeStyle = '#00FF66';
                         this.camOverlayCtx.lineWidth = 2.5;
@@ -304,32 +341,78 @@ class AartiInteractionComponent {
                         this.camOverlayCtx.arc(pipX, pipY, 5, 0, Math.PI * 2);
                         this.camOverlayCtx.fill();
                     }
+                } else {
+                    this.hasHandTracking = false;
                 }
             });
 
-            // Feed camera frames into MediaPipe
-            const sendFrame = async () => {
-                if (this.isCameraActive && this.camVideo && this.camVideo.readyState >= 2) {
-                    await this.mpHands.send({ image: this.camVideo });
-                }
-                if (this.isCameraActive) {
-                    requestAnimationFrame(sendFrame);
-                }
-            };
-            sendFrame();
+            this.startCameraLoop();
         } catch (e) {
             console.warn('MediaPipe init note, using local CV engine:', e);
-            requestAnimationFrame(() => this.processWebcamFrame());
+            this.mpFailed = true;
+            this.startCameraLoop();
         }
     }
 
     /**
-     * Local Zero-Dependency Computer Vision Fallback (Skin-Chroma Centroid Tracking)
+     * Decoupled camera processing loop:
+     * - Uses requestVideoFrameCallback when supported (native 30 FPS camera sync)
+     * - Falls back to throttled ~30 FPS timer if unsupported
+     * - Dispatches to MediaPipe or local CV fallback without overlapping inference calls
+     */
+    startCameraLoop() {
+        if (!this.isCameraActive || !this.camVideo) return;
+
+        const processFrame = async (now, metadata) => {
+            if (!this.isCameraActive) return;
+
+            if (this.camVideo && this.camVideo.readyState >= 2) {
+                if (this.mpHands && !this.mpFailed) {
+                    if (!this.isProcessingFrame) {
+                        this.isProcessingFrame = true;
+                        try {
+                            await this.mpHands.send({ image: this.camVideo });
+                        } catch (err) {
+                            console.warn('MediaPipe inference error, switching to local CV fallback:', err);
+                            this.mpFailed = true;
+                            this.processWebcamFrame();
+                        } finally {
+                            this.isProcessingFrame = false;
+                        }
+                    }
+                } else {
+                    this.processWebcamFrame();
+                }
+            }
+
+            // Schedule next frame strictly while camera remains active
+            if (this.isCameraActive && this.camVideo) {
+                if ('requestVideoFrameCallback' in this.camVideo) {
+                    this.videoFrameCallbackId = this.camVideo.requestVideoFrameCallback(processFrame);
+                } else {
+                    this.frameFallbackTimer = setTimeout(() => {
+                        if (this.isCameraActive) {
+                            requestAnimationFrame(() => processFrame(performance.now()));
+                        }
+                    }, 33);
+                }
+            }
+        };
+
+        if ('requestVideoFrameCallback' in this.camVideo) {
+            this.videoFrameCallbackId = this.camVideo.requestVideoFrameCallback(processFrame);
+        } else {
+            requestAnimationFrame(() => processFrame(performance.now()));
+        }
+    }
+
+    /**
+     * Local Zero-Dependency Computer Vision Fallback (Optimized Skin-Chroma Centroid Tracking)
      */
     processWebcamFrame() {
         if (!this.isCameraActive || !this.camVideo) return;
 
-        if (this.camVideo.readyState === this.camVideo.HAVE_ENOUGH_DATA) {
+        if (this.camVideo.readyState >= 2) {
             const cw = this.cvCanvas.width;
             const ch = this.cvCanvas.height;
 
@@ -338,6 +421,7 @@ class AartiInteractionComponent {
             const pixels = frameData.data;
 
             let sumX = 0, sumY = 0, count = 0;
+            let x = 0, y = 0;
 
             for (let i = 0; i < pixels.length; i += 4) {
                 const r = pixels[i];
@@ -346,14 +430,19 @@ class AartiInteractionComponent {
 
                 if (r > 95 && g > 40 && b > 20 &&
                     (r - g) > 15 && r > g && r > b) {
-                    const idx = i / 4;
-                    sumX += idx % cw;
-                    sumY += Math.floor(idx / cw);
+                    sumX += x;
+                    sumY += y;
                     count++;
+                }
+
+                x++;
+                if (x === cw) {
+                    x = 0;
+                    y++;
                 }
             }
 
-            if (this.camOverlayCtx) {
+            if (this.camOverlayCtx && this.camOverlay) {
                 this.camOverlayCtx.clearRect(0, 0, this.camOverlay.width, this.camOverlay.height);
             }
 
@@ -361,17 +450,26 @@ class AartiInteractionComponent {
                 const cx = sumX / count;
                 const cy = sumY / count;
 
-                const normX = 1.0 - (cx / cw);
-                const normY = cy / ch;
+                const rawNormX = 1.0 - (cx / cw);
+                const rawNormY = cy / ch;
 
-                this.targetX = normX * window.innerWidth;
-                this.targetY = normY * window.innerHeight;
+                const rawTargetX = rawNormX * window.innerWidth;
+                const rawTargetY = rawNormY * window.innerHeight;
+
+                if (this.hasHandTracking) {
+                    this.targetX += (rawTargetX - this.targetX) * 0.40;
+                    this.targetY += (rawTargetY - this.targetY) * 0.40;
+                } else {
+                    this.targetX = rawTargetX;
+                    this.targetY = rawTargetY;
+                    this.hasHandTracking = true;
+                }
 
                 this.trackCircularMotion(this.targetX, this.targetY);
 
-                if (this.camOverlayCtx) {
-                    const pipX = (1.0 - normX) * this.camOverlay.width;
-                    const pipY = normY * this.camOverlay.height;
+                if (this.camOverlayCtx && this.camOverlay) {
+                    const pipX = (1.0 - rawNormX) * this.camOverlay.width;
+                    const pipY = rawNormY * this.camOverlay.height;
 
                     this.camOverlayCtx.strokeStyle = '#00FF66';
                     this.camOverlayCtx.lineWidth = 2;
@@ -384,11 +482,9 @@ class AartiInteractionComponent {
                     this.camOverlayCtx.arc(pipX, pipY, 4, 0, Math.PI * 2);
                     this.camOverlayCtx.fill();
                 }
+            } else {
+                this.hasHandTracking = false;
             }
-        }
-
-        if (!this.mpHands && this.isCameraActive) {
-            requestAnimationFrame(() => this.processWebcamFrame());
         }
     }
 
@@ -457,8 +553,9 @@ class AartiInteractionComponent {
                         this.triggerFinalBlessings();
                     }
                 }
-            } else if (delta < 0) {
-                // If moving counter-clockwise, unwind cumulative angle gracefully
+            } else if (delta < -0.06) {
+                // Intentional counter-clockwise movement unwinds cumulative angle gracefully
+                // Micro-fluctuations between -0.06 and 0 rad (~3.4 deg) are filtered to prevent sensor noise from canceling progress
                 this.cumulativeAngle = Math.max(0, this.cumulativeAngle + delta * 0.5);
             }
         }
@@ -568,14 +665,18 @@ class AartiInteractionComponent {
         this.thaliY += vy * 0.22;
 
         if (this.thali) {
-            this.thali.style.left = `${this.thaliX}px`;
-            this.thali.style.top = `${this.thaliY}px`;
+            this.thali.style.transform = `translate3d(${this.thaliX}px, ${this.thaliY}px, 0) translate(-50%, -50%)`;
         }
 
         // Natural flame aerodynamic tilt with velocity inertia
         if (this.kapoorFlame) {
             const tilt = Math.max(-18, Math.min(18, -vx * 0.55));
             this.kapoorFlame.style.transform = `scale(1.12) rotate(${tilt}deg)`;
+            if (this.peripheralFlames && this.peripheralFlames.length > 0) {
+                this.peripheralFlames.forEach(f => {
+                    f.style.transform = `scale(1.05) rotate(${tilt * 0.85}deg)`;
+                });
+            }
         }
 
         requestAnimationFrame(() => this.updateLoop());
