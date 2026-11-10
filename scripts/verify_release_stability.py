@@ -12,7 +12,7 @@ import os
 import re
 import subprocess
 
-WORKSPACE = r'c:\Users\pranjali\OneDrive\Desktop\Divinity_Maa_Laxmi'
+WORKSPACE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def audit_all_assets():
     print("=" * 70)

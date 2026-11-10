@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>Divinity Maa Lakshmi - Automated Whole-Project Browser Audit Harness</title>
     <!-- Stylesheets under test -->
-    <link rel="stylesheet" href="css/welcome.css">
-    <link rel="stylesheet" href="css/curtains.css">
-    <link rel="stylesheet" href="css/sanctum.css">
-    <link rel="stylesheet" href="css/aarti_player.css">
-    <link rel="stylesheet" href="css/aarti.css">
+    <link rel="stylesheet" href="../css/welcome.css">
+    <link rel="stylesheet" href="../css/curtains.css">
+    <link rel="stylesheet" href="../css/sanctum.css">
+    <link rel="stylesheet" href="../css/aarti_player.css">
+    <link rel="stylesheet" href="../css/aarti.css">
 
     <!-- External GSAP script (optional, fallback tested) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -17,17 +17,17 @@
 
     <!-- Sacred Audio Mock / Real Elements -->
     <audio id="shankhAudio" preload="auto">
-        <source src="shankh_naad.mp3" type="audio/mpeg">
+        <source src="../shankh_naad.mp3" type="audio/mpeg">
     </audio>
     <audio id="aartiAudio" preload="metadata">
-        <source src="media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
+        <source src="../media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
     </audio>
 
     <main id="app">
         <!-- PHASE 1: WELCOME SCREEN -->
         <section id="welcomeScreen" class="welcome-screen">
-            <video id="welcomeVideo" class="welcome-video" autoplay muted loop playsinline poster="darshan_poster.png">
-                <source src="cinematic_diwali_darshan_1080p.mp4" type="video/mp4">
+            <video id="welcomeVideo" class="welcome-video" autoplay muted loop playsinline poster="../darshan_poster.png">
+                <source src="../cinematic_diwali_darshan_1080p.mp4" type="video/mp4">
             </video>
             <div id="scrollPrompt" class="scroll-prompt" role="button" aria-label="Scroll for Maa's Darshan">
                 <span>Scroll for Maa's Darshan</span>
@@ -46,8 +46,8 @@
         <!-- PHASE 2: SANCTUM SANCTORUM -->
         <section id="sanctumSanctorum" class="sanctum-sanctorum">
             <div class="fullscreen-darshan-container">
-                <img src="maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
-                <img src="maa_lakshmi_darshan_4k.jpg" alt="Maa Lakshmi" class="darshan-main-img" id="deityDarshanImg">
+                <img src="../maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
+                <img src="../maa_lakshmi_darshan_4k.jpg" alt="Maa Lakshmi" class="darshan-main-img" id="deityDarshanImg">
             </div>
             <div class="divine-rays-layer"></div>
             <canvas id="divineEnvCanvas" width="1920" height="1080"></canvas>
@@ -117,11 +117,11 @@
     </main>
 
     <!-- Production Component Scripts -->
-    <script src="js/welcome.js"></script>
-    <script src="js/curtains.js"></script>
-    <script src="js/environment.js"></script>
-    <script src="js/aarti_player.js"></script>
-    <script src="js/aarti.js"></script>
+    <script src="../js/welcome.js"></script>
+    <script src="../js/curtains.js"></script>
+    <script src="../js/environment.js"></script>
+    <script src="../js/aarti_player.js"></script>
+    <script src="../js/aarti.js"></script>
 
     <!-- AUTOMATED AUDIT SUITE -->
     <div id="auditReportContainer" style="display:none;">

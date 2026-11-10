@@ -10,9 +10,9 @@ import json
 import subprocess
 import re
 
-WORKSPACE = r'c:\Users\pranjali\OneDrive\Desktop\Divinity_Maa_Laxmi'
+WORKSPACE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHROME_PATH = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
-HARNESS_URL = 'file:///' + os.path.join(WORKSPACE, 'browser_audit_harness.html').replace('\\', '/')
+HARNESS_URL = 'file:///' + os.path.join(WORKSPACE, 'tests', 'browser_audit_harness.html').replace('\\', '/')
 
 def run_browser_audit():
     print("=" * 75)
