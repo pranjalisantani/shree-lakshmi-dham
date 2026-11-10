@@ -14,7 +14,7 @@ def render_viewport(width, height, is_mobile=False, output_path=None):
     print(f"Rendering viewport: {width}x{height} (Mobile={is_mobile})...")
 
     # 1. Load 4K Master Asset
-    master_path = r'c:\Users\pranjali\OneDrive\Desktop\Divinity_Maa_Laxmi\maa_lakshmi_darshan_4k.jpg'
+    master_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'media', 'images', 'maa_lakshmi_darshan_4k.jpg')
     img_master = Image.open(master_path).convert('RGBA')
     mw, mh = img_master.size
     img_aspect = mw / mh # ~16:9

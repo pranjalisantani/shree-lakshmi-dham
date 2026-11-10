@@ -14,11 +14,11 @@
 
 | Desktop 1080p Aarti & Synchronized Lyrics | Final Divine Blessings |
 |:---:|:---:|
-| ![Desktop Aarti Preview](desktop_1080p_aarti_preview.png) | ![Final Blessings Preview](final_blessings_preview.png) |
+| ![Desktop Aarti Preview](docs/screenshots/desktop_1080p_aarti_preview.png) | ![Final Blessings Preview](docs/screenshots/final_blessings_preview.png) |
 
 | Mobile Portrait Darshan & Thali | Dedicated Hardware Diagnostic HUD |
 |:---:|:---:|
-| ![Mobile Portrait Preview](mobile_portrait_aarti_preview.png) | ![Laptop 768p Aarti Preview](laptop_768p_aarti_preview.png) |
+| ![Mobile Portrait Preview](docs/screenshots/mobile_portrait_aarti_preview.png) | ![Laptop 768p Aarti Preview](docs/screenshots/laptop_768p_aarti_preview.png) |
 
 ---
 
@@ -99,7 +99,7 @@ http://localhost:8000/index.html
 
 To run the dedicated optical camera test harness with diagnostic telemetry:
 ```
-http://localhost:8000/manual_hardware_test.html
+http://localhost:8000/tests/manual_hardware_test.html
 ```
 
 ---
@@ -109,27 +109,17 @@ http://localhost:8000/manual_hardware_test.html
 ```
 shree-lakshmi-dham/
 ├── index.html                   # Main entry point (Welcome -> Curtains -> Darshan -> Aarti)
-├── preview_darshan.html         # Direct Sanctum & Aarti preview
-├── manual_hardware_test.html    # Dedicated hardware testing harness with telemetry HUD
-├── css/
-│   ├── welcome.css              # Opening video & holy feet styling
-│   ├── curtains.css             # Royal silk curtain animations & golden trims
-│   ├── sanctum.css              # 4K Darshan layout & visual effects
-│   ├── aarti_player.css         # Mandir audio player & synchronized lyrics pedestal
-│   └── aarti.css                # Floating Aarti thali, wicks, flames & PiP camera box
-├── js/
-│   ├── welcome.js               # Scroll, swipe, and key navigation trigger
-│   ├── curtains.js              # GSAP curtain opening timeline & voiceover coordinator
-│   ├── environment.js           # 60 FPS canvas engine (petals, coins, diya flames, smoke)
-│   ├── aarti_player.js          # Synchronized lyrics manager & HTML5 audio controller
-│   └── aarti.js                 # MediaPipe hand tracking, parikrama math & blessings
-├── data/
-│   └── aarti_lyrics.json        # Authoritative Devanagari lyrics with millisecond timestamps
+├── css/                         # Temple visual styling & layouts
+├── js/                          # Core engine, GSAP timelines, audio player & hand tracking
+├── data/                        # Authoritative Devanagari lyrics with millisecond timestamps
 ├── media/
-│   └── audio/
-│       └── maa-lakshmi-aarti.mp3# Complete 05:31 master soundtrack
-├── maa_lakshmi_darshan_4k.jpg   # Master 4K devotional artwork
-└── cinematic_diwali_darshan_1080p.mp4 # Opening holy feet welcome video
+│   ├── audio/                   # Master Aarti soundtrack & Shankh Naad audio
+│   ├── images/                  # Master 4K devotional artwork & video poster
+│   └── video/                   # Opening holy feet ambient welcome video
+├── docs/                        # Reports & README preview screenshots
+├── scripts/                     # Verification & testing automation scripts
+├── tests/                       # Browser testing harnesses & standalone preview pages
+└── archive/                     # Visual comparison crops & historical media cuts
 ```
 
 ---

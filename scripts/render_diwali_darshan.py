@@ -169,9 +169,9 @@ def generate_animation():
     print(f"Total frames to render: {total_frames} ({duration_sec}s @ {fps}fps)")
 
     # Output video file paths
-    video_path_centered = os.path.join(output_dir, "cinematic_diwali_darshan_centered.mp4")
-    video_path_1080p = os.path.join(output_dir, "cinematic_diwali_darshan_1080p.mp4")
-    poster_path = os.path.join(output_dir, "darshan_poster.png")
+    video_path_centered = os.path.join(output_dir, "media", "video", "cinematic_diwali_darshan_centered.mp4")
+    video_path_1080p = os.path.join(output_dir, "media", "video", "cinematic_diwali_darshan_1080p.mp4")
+    poster_path = os.path.join(output_dir, "media", "images", "darshan_poster.png")
 
     writer_centered = imageio.get_writer(
         video_path_centered,

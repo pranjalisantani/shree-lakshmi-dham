@@ -7,11 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+Devanagari:wght@400;600;700&family=Rozha+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/welcome.css">
-    <link rel="stylesheet" href="css/curtains.css">
-    <link rel="stylesheet" href="css/sanctum.css">
-    <link rel="stylesheet" href="css/aarti_player.css">
-    <link rel="stylesheet" href="css/aarti.css">
+    <link rel="stylesheet" href="../css/welcome.css">
+    <link rel="stylesheet" href="../css/curtains.css">
+    <link rel="stylesheet" href="../css/sanctum.css">
+    <link rel="stylesheet" href="../css/aarti_player.css">
+    <link rel="stylesheet" href="../css/aarti.css">
     <style>
         /* Force Sanctum Active for Visual Verification */
         .sanctum-sanctorum {
@@ -26,19 +26,19 @@
 <body>
     <!-- Sacred Audio Assets -->
     <audio id="shankhAudio" preload="auto">
-        <source src="shankh_naad.mp3" type="audio/mpeg">
+        <source src="../media/audio/shankh_naad.mp3" type="audio/mpeg">
     </audio>
     <audio id="aartiAudio" preload="metadata">
-        <source src="media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
+        <source src="../media/audio/maa-lakshmi-aarti.mp3" type="audio/mpeg">
     </audio>
 
     <main id="app">
         <section id="sanctumSanctorum" class="sanctum-sanctorum active">
             <!-- Fullscreen Edge-to-Edge Maa Lakshmi Darshan Presentation -->
             <div class="fullscreen-darshan-container">
-                <img src="maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
-                <img src="maa_lakshmi_darshan_4k.jpg" 
-                     srcset="maa_lakshmi_darshan_1080p.jpg 1920w, maa_lakshmi_darshan_4k.jpg 3840w"
+                <img src="../media/images/maa_lakshmi_darshan_4k.jpg" alt="" class="darshan-bg-blur" aria-hidden="true">
+                <img src="../media/images/maa_lakshmi_darshan_4k.jpg" 
+                     srcset="../media/images/maa_lakshmi_darshan_1080p.jpg 1920w, ../media/images/maa_lakshmi_darshan_4k.jpg 3840w"
                      sizes="100vw"
                      alt="Maa Maha Lakshmi Divine Fullscreen Darshan" 
                      class="darshan-main-img" 
@@ -133,9 +133,9 @@
     <!-- GSAP CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
-    <script src="js/environment.js"></script>
-    <script src="js/aarti_player.js"></script>
-    <script src="js/aarti.js"></script>
+    <script src="../js/environment.js"></script>
+    <script src="../js/aarti_player.js"></script>
+    <script src="../js/aarti.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const environment = new DivineEnvironmentComponent('divineEnvCanvas');

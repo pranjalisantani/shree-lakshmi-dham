@@ -19,7 +19,7 @@ def audit_files_and_code():
 
     required_files = [
         ('index.html', 5000),
-        ('preview_darshan.html', 3000),
+        ('tests/preview_darshan.html', 3000),
         ('css/aarti.css', 4000),
         ('css/aarti_player.css', 5000),
         ('css/sanctum.css', 4000),
@@ -32,9 +32,9 @@ def audit_files_and_code():
         ('js/welcome.js', 2500),
         ('data/aarti_lyrics.json', 5000),
         ('media/audio/maa-lakshmi-aarti.mp3', 5000000),
-        ('shankh_naad.mp3', 80000),
-        ('maa_lakshmi_darshan_4k.jpg', 2500000),
-        ('cinematic_diwali_darshan_1080p.mp4', 50000000)
+        ('media/audio/shankh_naad.mp3', 80000),
+        ('media/images/maa_lakshmi_darshan_4k.jpg', 2500000),
+        ('media/video/cinematic_diwali_darshan_1080p.mp4', 50000000)
     ]
 
     all_ok = True
@@ -166,7 +166,7 @@ def render_phase4_interactive_scene(output_path, is_mobile=False, custom_w=None,
     print(f"Rendering Phase 4 Interactive Scene: {width}x{height} (Mobile={is_mobile})...")
 
     # 1. Base Darshan Scene
-    master_path = os.path.join(WORKSPACE, 'maa_lakshmi_darshan_4k.jpg')
+    master_path = os.path.join(WORKSPACE, 'media', 'images', 'maa_lakshmi_darshan_4k.jpg')
     img_master = Image.open(master_path).convert('RGBA')
     mw, mh = img_master.size
     img_aspect = mw / mh
@@ -396,7 +396,7 @@ def render_phase5_blessings_scene(output_path):
     print(f"Rendering Phase 5 Final Blessings Scene: {width}x{height}...")
 
     # 1. Base Darshan Scene
-    master_path = os.path.join(WORKSPACE, 'maa_lakshmi_darshan_4k.jpg')
+    master_path = os.path.join(WORKSPACE, 'media', 'images', 'maa_lakshmi_darshan_4k.jpg')
     img_master = Image.open(master_path).convert('RGBA')
     mw, mh = img_master.size
     img_aspect = mw / mh
@@ -498,15 +498,15 @@ if __name__ == '__main__':
     print(f"\nAudit Passed: {audit_passed}\n")
 
     render_phase4_interactive_scene(
-        os.path.join(WORKSPACE, 'desktop_aarti_interaction_preview.png'),
+        os.path.join(WORKSPACE, 'archive', 'alternate_media', 'desktop_aarti_interaction_preview.png'),
         is_mobile=False
     )
     render_phase4_interactive_scene(
-        os.path.join(WORKSPACE, 'mobile_aarti_portrait_preview.png'),
+        os.path.join(WORKSPACE, 'archive', 'alternate_media', 'mobile_aarti_portrait_preview.png'),
         is_mobile=True
     )
     render_phase5_blessings_scene(
-        os.path.join(WORKSPACE, 'desktop_final_blessings_modal_preview.png')
+        os.path.join(WORKSPACE, 'archive', 'alternate_media', 'desktop_final_blessings_modal_preview.png')
     )
     print("\nAll Phase 4 & Phase 5 Verifications and Previews Successfully Generated!")
 

@@ -21,7 +21,7 @@ import random
 
 def render_custom_viewport(width, height, is_mobile, output_name, desc):
     print(f"Rendering {desc}: {width}x{height} (Mobile={is_mobile})...")
-    out_path = os.path.join(WORKSPACE, output_name)
+    out_path = os.path.join(WORKSPACE, 'docs', 'screenshots', output_name)
     render_phase4_interactive_scene(out_path, is_mobile=is_mobile, custom_w=width, custom_h=height)
     # Also copy to artifact directory
     art_dir = r'C:\Users\pranjali\.gemini\antigravity\brain\8868637f-3187-40ed-a6d7-cdcf53be6fbc'
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     render_custom_viewport(844, 390, False, 'mobile_landscape_aarti_preview.png', 'Mobile Landscape (844x390)')
     
     # Also render final blessings modal
-    bless_path = os.path.join(WORKSPACE, 'final_blessings_preview.png')
+    bless_path = os.path.join(WORKSPACE, 'docs', 'screenshots', 'final_blessings_preview.png')
     render_phase5_blessings_scene(bless_path)
     art_dir = r'C:\Users\pranjali\.gemini\antigravity\brain\8868637f-3187-40ed-a6d7-cdcf53be6fbc'
     import shutil

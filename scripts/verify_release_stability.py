@@ -19,7 +19,7 @@ def audit_all_assets():
     print("1. CHECKING ASSET INTEGRITY ACROSS ALL HTML & CSS FILES")
     print("=" * 70)
 
-    html_files = ['index.html', 'preview_darshan.html', 'manual_hardware_test.html']
+    html_files = ['index.html', 'tests/preview_darshan.html', 'tests/manual_hardware_test.html']
     css_files = [os.path.join('css', f) for f in os.listdir(os.path.join(WORKSPACE, 'css')) if f.endswith('.css')]
 
     all_files = html_files + css_files
